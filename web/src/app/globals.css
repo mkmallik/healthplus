@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: #4CAF50;
+  --color-primary-dark: #388E3C;
+  --color-primary-light: #C8E6C9;
+  --color-accent: #FF9800;
+  --color-surface: #FFFFFF;
+  --color-error: #F44336;
+  --color-text: #212121;
+  --color-text-secondary: #757575;
+  --color-border: #E0E0E0;
+  --color-bg: #F5F5F5;
+  --color-breakfast: #FF9800;
+  --color-lunch: #4CAF50;
+  --color-dinner: #2196F3;
+  --color-snack: #9C27B0;
+  --color-calories: #FF5722;
+  --color-protein: #2196F3;
+  --color-carbs: #FF9800;
+  --color-fat: #F44336;
+  --color-exercise: #E91E63;
+  --color-steps: #00ACC1;
+  --color-weight: #795548;
+  --color-waist: #78909C;
+  --color-biceps: #673AB7;
+  --color-streak: #FF5722;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* Toast animation */
+@keyframes toast-slide-in {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+.toast-enter {
+  animation: toast-slide-in 0.3s ease-out forwards;
+}
+
+.toast-exit {
+  animation: toast-slide-out 0.3s ease-in forwards;
+}

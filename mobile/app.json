@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "HealthPlus",
+    "slug": "healthplus",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0D1117"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0D1117"
+      },
+      "softwareKeyboardLayoutMode": "adjustResize",
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.healthplus.app",
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "INTERNET",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "HealthPlus needs camera access to photograph your meals."
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "HealthPlus needs microphone access to record meal descriptions."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "HealthPlus needs access to your photos to select meal images."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b82dc1d1-c654-469e-a4f1-fa09c952544b"
+      }
+    },
+    "owner": "mkmallik"
+  }
+}

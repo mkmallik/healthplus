@@ -1,0 +1,69 @@
+import React, { useState, useCallback } from "react";
+import { View, StyleSheet } from "react-native";
+import DateNavigator from "../components/DateNavigator";
+import HabitsTab from "./tabs/HabitsTab";
+import { COLORS } from "../utils/constants";
+
+function formatDateISO(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function isSameDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+export default function HabitsFullScreen() {
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+  const isToday = isSameDay(selectedDate, new Date());
+  const dateStr = formatDateISO(selectedDate);
+
+  const goToPrev = useCallback(() => {
+    setSelectedDate((prev) => {
+      const next = new Date(prev);
+      next.setDate(next.getDate() - 1);
+      return next;
+    });
+  }, []);
+
+  const goToNext = useCallback(() => {
+    setSelectedDate((prev) => {
+      if (isSameDay(prev, new Date())) return prev;
+      const next = new Date(prev);
+      next.setDate(next.getDate() + 1);
+      return next;
+    });
+  }, []);
+
+  const goToToday = useCallback(() => {
+    setSelectedDate(new Date());
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <DateNavigator
+        selectedDate={selectedDate}
+        onPrev={goToPrev}
+        onNext={goToNext}
+        onReset={goToToday}
+        isToday={isToday}
+        onDateSelect={(d) => setSelectedDate(d)}
+      />
+      <HabitsTab selectedDate={selectedDate} isToday={isToday} dateStr={dateStr} />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+});

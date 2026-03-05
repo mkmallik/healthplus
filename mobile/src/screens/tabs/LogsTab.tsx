@@ -1,0 +1,398 @@
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  SectionList,
+  StyleSheet,
+  RefreshControl,
+  TouchableOpacity,
+  ActivityIndicator,
+  Image,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import client from "../../api/client";
+import { COLORS } from "../../utils/constants";
+import PeriodToggle, { Period } from "../../components/PeriodToggle";
+import type { TabProps, HabitTodayItem } from "./types";
+
+const LOG_TYPE_ICONS: Record<string, string> = {
+  text: "create-outline",
+  voice: "mic-outline",
+  image: "camera-outline",
+  manual: "checkmark-circle-outline",
+};
+
+interface HabitLogDateGroup {
+  date: string;
+  entries: { habit: any; log: any }[];
+  unlogged: any[];
+}
+
+function formatDateISO(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function formatSectionDate(dateStr: string): string {
+  const parts = dateStr.split("-");
+  const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate()) {
+    return "Today";
+  }
+  if (d.getFullYear() === yesterday.getFullYear() && d.getMonth() === yesterday.getMonth() && d.getDate() === yesterday.getDate()) {
+    return "Yesterday";
+  }
+
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
+}
+
+export default function LogsTab({ selectedDate, isToday, dateStr }: TabProps) {
+  const navigation = useNavigation<any>();
+  const [period, setPeriod] = useState<Period>("day");
+  const [items, setItems] = useState<HabitTodayItem[]>([]);
+  const [multiDayData, setMultiDayData] = useState<HabitLogDateGroup[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    try {
+      if (period === "day") {
+        const res = await client.get(`/habits/today?date=${dateStr}`);
+        setItems(res.data);
+        setMultiDayData([]);
+      } else {
+        const daysBack = period === "7days" ? 6 : 29;
+        const fromDate = new Date(selectedDate);
+        fromDate.setDate(fromDate.getDate() - daysBack);
+        const fromStr = formatDateISO(fromDate);
+        const res = await client.get(`/habits/logs?date_from=${fromStr}&date_to=${dateStr}`);
+        setMultiDayData(res.data);
+        setItems([]);
+      }
+    } catch {
+      // silent
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [dateStr, period, selectedDate]);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchData();
+  }, [fetchData]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchData();
+  }, [fetchData]);
+
+  const navigateToLog = (habit: any, targetDate: string) => {
+    navigation.navigate("DescriptiveHabitLog", {
+      habitId: habit.id,
+      habitName: habit.name,
+      habitColor: habit.color,
+      initialMode: "text",
+      logDate: targetDate,
+    });
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <PeriodToggle period={period} onChange={setPeriod} />
+        <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />
+      </View>
+    );
+  }
+
+  // Multi-day mode
+  if (period !== "day") {
+    // Group all entries + unlogged per date into one flat card per habit per date
+    const sections = multiDayData.map((group) => {
+      // Merge entries by habit into single cards
+      const habitCards: { habit: any; logs: any[] }[] = [];
+      const habitMap = new Map<number, { habit: any; logs: any[] }>();
+
+      for (const e of group.entries) {
+        const existing = habitMap.get(e.habit.id);
+        if (existing) {
+          existing.logs.push(e.log);
+        } else {
+          const card = { habit: e.habit, logs: [e.log] };
+          habitMap.set(e.habit.id, card);
+          habitCards.push(card);
+        }
+      }
+      // Add unlogged habits as cards with empty logs
+      for (const h of group.unlogged) {
+        if (!habitMap.has(h.id)) {
+          habitCards.push({ habit: h, logs: [] });
+        }
+      }
+
+      return {
+        title: formatSectionDate(group.date),
+        dateStr: group.date,
+        data: habitCards,
+      };
+    }).filter((s) => s.data.length > 0);
+
+    return (
+      <View style={styles.container}>
+        <PeriodToggle period={period} onChange={setPeriod} />
+        {sections.length === 0 ? (
+          <View style={styles.emptyCenter}>
+            <Ionicons name="book-outline" size={48} color={COLORS.textSecondary} />
+            <Text style={styles.emptyText}>No journal entries in this period.</Text>
+          </View>
+        ) : (
+          <SectionList
+            sections={sections}
+            keyExtractor={(item, idx) => `${item.habit.id}-${idx}`}
+            renderSectionHeader={({ section }) => (
+              <Text style={styles.sectionDateHeader}>{section.title}</Text>
+            )}
+            renderItem={({ item, section }) => renderHabitCard(item.habit, item.logs, section.dateStr)}
+            contentContainerStyle={styles.scrollContent}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} tintColor={COLORS.primary} />
+            }
+            stickySectionHeadersEnabled={false}
+          />
+        )}
+      </View>
+    );
+  }
+
+  // Single-day mode: one card per descriptive habit with all its logs grouped
+  const descriptiveHabits = items.filter(
+    (i) => (i.habit.habit_type || "boolean") === "descriptive"
+  );
+
+  const habitCards = descriptiveHabits.map((item) => {
+    const logsWithContent = item.logs.filter((l) => l.content);
+    return { habit: item.habit, logs: logsWithContent };
+  });
+
+  function renderHabitCard(habit: any, logs: any[], targetDate: string) {
+    const hasLogs = logs.length > 0;
+    const isUnlogged = !hasLogs;
+
+    return (
+      <View style={[styles.habitCard, { borderLeftColor: isUnlogged ? habit.color + "60" : habit.color }]}>
+        {/* Header */}
+        <View style={styles.habitCardHeader}>
+          <View style={[styles.habitIconCircle, { backgroundColor: habit.color + (isUnlogged ? "10" : "20") }]}>
+            <Ionicons name={habit.icon as any} size={18} color={isUnlogged ? habit.color + "80" : habit.color} />
+          </View>
+          <Text style={[styles.habitCardName, isUnlogged && { color: COLORS.textSecondary }]}>{habit.name}</Text>
+          <TouchableOpacity
+            style={[styles.logCta, { borderColor: habit.color }]}
+            onPress={() => navigateToLog(habit, targetDate)}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="add" size={14} color={habit.color} />
+            <Text style={[styles.logCtaText, { color: habit.color }]}>Log</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Combined logs content */}
+        {hasLogs && (
+          <TouchableOpacity
+            onPress={() => navigateToLog(habit, targetDate)}
+            activeOpacity={0.7}
+            style={styles.logsContent}
+          >
+            {logs.map((log, idx) => {
+              const logType = log.log_type || "text";
+              const iconName = LOG_TYPE_ICONS[logType] || "create-outline";
+              return (
+                <View key={log.id} style={idx > 0 ? styles.logDivider : undefined}>
+                  <View style={styles.logTypeRow}>
+                    <Ionicons name={iconName as any} size={12} color={habit.color} />
+                    <Text style={[styles.logTypeLabel, { color: habit.color }]}>{logType}</Text>
+                  </View>
+                  <Text style={styles.logText}>{log.content}</Text>
+                  {log.image_url && (
+                    <Image
+                      source={{ uri: log.image_url.startsWith("http") ? log.image_url : `${client.defaults.baseURL?.replace("/api", "")}${log.image_url}` }}
+                      style={styles.logImage}
+                      resizeMode="cover"
+                    />
+                  )}
+                </View>
+              );
+            })}
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} tintColor={COLORS.primary} />
+        }
+      >
+        <PeriodToggle period={period} onChange={setPeriod} />
+
+        {habitCards.length > 0 ? (
+          habitCards.map((card) => (
+            <View key={card.habit.id}>
+              {renderHabitCard(card.habit, card.logs, dateStr)}
+            </View>
+          ))
+        ) : (
+          <View style={styles.noEntriesHint}>
+            <Ionicons name="book-outline" size={18} color={COLORS.textSecondary} />
+            <Text style={styles.noEntriesText}>
+              No descriptive habits yet. Create descriptive habits to start journaling.
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  centered: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  emptyCenter: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 15,
+    color: COLORS.textSecondary,
+    marginTop: 10,
+  },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  sectionDateHeader: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: COLORS.primary,
+    marginBottom: 10,
+    marginTop: 16,
+    marginHorizontal: 16,
+  },
+
+  // Habit card (one per habit per day)
+  habitCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    borderLeftWidth: 3,
+    padding: 14,
+    marginBottom: 12,
+    marginHorizontal: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  habitCardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  habitIconCircle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 8,
+  },
+  habitCardName: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: COLORS.text,
+    flex: 1,
+  },
+  logCta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    borderWidth: 1.5,
+    borderRadius: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  logCtaText: {
+    fontSize: 12,
+    fontWeight: "700",
+  },
+
+  // Logs content area within a card
+  logsContent: {
+    marginTop: 10,
+  },
+  logDivider: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  logTypeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: 4,
+  },
+  logTypeLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+  },
+  logText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
+  },
+  logImage: {
+    width: "100%",
+    height: 180,
+    borderRadius: 8,
+    marginTop: 8,
+    backgroundColor: COLORS.background,
+  },
+
+  noEntriesHint: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 4,
+    padding: 14,
+    backgroundColor: COLORS.surface,
+    borderRadius: 10,
+  },
+  noEntriesText: {
+    flex: 1,
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
+  },
+});
