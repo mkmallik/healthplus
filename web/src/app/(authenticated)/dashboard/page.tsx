@@ -342,6 +342,8 @@ export default function DashboardPage() {
           label={formatShortDate(dailyDate)}
           onPrev={() => shiftDailyDate(-1)}
           onNext={() => shiftDailyDate(1)}
+          onDateSelect={(d) => setDailyDate(d)}
+          selectedDate={dailyDate}
         />
       )}
       {activeTab === "weekly" && (

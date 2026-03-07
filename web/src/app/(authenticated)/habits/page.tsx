@@ -145,6 +145,8 @@ export default function HabitsPage() {
         onPrev={() => shiftDate(-1)}
         onNext={() => shiftDate(1)}
         onReset={() => setDate(new Date())}
+        onDateSelect={(d) => setDate(d)}
+        selectedDate={date}
       />
 
       <h1 className="text-2xl font-bold text-text mb-4">Habits</h1>

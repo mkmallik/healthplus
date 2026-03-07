@@ -14,7 +14,7 @@ from app.database import get_db
 from app.models import User, Note
 from app.schemas import NoteResponse
 from app.auth import get_current_user
-from app.services.openai_service import transcribe_audio
+from app.services.openai_service import transcribe_audio, refine_transcription
 
 router = APIRouter()
 
@@ -68,6 +68,7 @@ async def create_note(
             # Transcribe
             try:
                 transcription = await transcribe_audio(audio_full_path)
+                transcription = await refine_transcription(transcription, context="personal note")
                 if combined_content:
                     combined_content = f"{combined_content}\n\n{transcription}"
                 else:

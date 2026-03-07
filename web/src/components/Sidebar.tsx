@@ -3,12 +3,23 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { Home, BarChart3, Target, PlusCircle, LogOut, Leaf, TrendingUp } from "lucide-react";
+import {
+  Home, Repeat, CheckSquare, BookOpen, FileText,
+  TrendingUp, Target, PlusCircle, BarChart3,
+  LogOut, Leaf, Settings,
+} from "lucide-react";
 
-const NAV_ITEMS = [
+const MAIN_NAV = [
   { href: "/home", label: "Today", icon: Home },
-  { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
+  { href: "/habits", label: "Habits", icon: Repeat },
+  { href: "/todo", label: "Todo", icon: CheckSquare },
+  { href: "/logs", label: "Logs", icon: BookOpen },
+  { href: "/notes", label: "Notes", icon: FileText },
+];
+
+const SECONDARY_NAV = [
   { href: "/insights", label: "Insights", icon: TrendingUp },
+  { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
   { href: "/goals", label: "Goals", icon: Target },
   { href: "/log", label: "Log", icon: PlusCircle },
 ];
@@ -16,6 +27,25 @@ const NAV_ITEMS = [
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+
+  const renderNavItem = (item: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }) => {
+    const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+    const Icon = item.icon;
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+          isActive
+            ? "bg-primary-light text-primary-dark"
+            : "text-text-secondary hover:bg-bg hover:text-text"
+        }`}
+      >
+        <Icon className="h-5 w-5" />
+        {item.label}
+      </Link>
+    );
+  };
 
   return (
     <>
@@ -28,25 +58,12 @@ export default function Sidebar() {
           <span className="text-lg font-bold text-text">HealthPlus</span>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-primary-light text-primary-dark"
-                    : "text-text-secondary hover:bg-bg hover:text-text"
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          {MAIN_NAV.map(renderNavItem)}
+
+          <div className="my-3 border-t border-border" />
+
+          {SECONDARY_NAV.map(renderNavItem)}
         </nav>
 
         <div className="border-t border-border p-3">
@@ -65,9 +82,9 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      {/* Mobile Bottom Nav */}
+      {/* Mobile Bottom Nav — only main 5 tabs */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden bg-surface border-t border-border" style={{ height: 64 }}>
-        {NAV_ITEMS.map((item) => {
+        {MAIN_NAV.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           const Icon = item.icon;
           return (

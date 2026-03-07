@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -61,6 +61,8 @@ function formatSectionDate(dateStr: string): string {
   return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
 }
 
+const PAGE_SIZE = 30;
+
 export default function NotesScreen() {
   const navigation = useNavigation<any>();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -69,39 +71,61 @@ export default function NotesScreen() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchMode, setSearchMode] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const offsetRef = useRef(0);
 
   const isToday = isSameDay(selectedDate, new Date());
   const dateStr = formatDateISO(selectedDate);
 
-  const fetchNotes = useCallback(async () => {
-    setLoading(true);
+  const fetchNotes = useCallback(async (append = false) => {
+    if (!append) setLoading(true);
     try {
       let params: string;
+      const currentOffset = append ? offsetRef.current : 0;
       if (searchMode && searchQuery.trim()) {
-        params = `?search=${encodeURIComponent(searchQuery.trim())}`;
+        params = `?search=${encodeURIComponent(searchQuery.trim())}&limit=${PAGE_SIZE}&offset=${currentOffset}`;
       } else if (period === "day") {
         params = `?date=${dateStr}`;
+      } else if (period === "all") {
+        params = `?limit=${PAGE_SIZE}&offset=${currentOffset}`;
       } else {
         const daysBack = period === "7days" ? 6 : 29;
         const fromDate = new Date(selectedDate);
         fromDate.setDate(fromDate.getDate() - daysBack);
         const fromStr = formatDateISO(fromDate);
-        params = `?date_from=${fromStr}&date_to=${dateStr}`;
+        params = `?date_from=${fromStr}&date_to=${dateStr}&limit=${PAGE_SIZE}&offset=${currentOffset}`;
       }
       const res = await client.get(`/notes${params}`);
-      setNotes(res.data);
+      const newNotes: NoteItem[] = res.data;
+      if (append) {
+        setNotes((prev) => [...prev, ...newNotes]);
+      } else {
+        setNotes(newNotes);
+      }
+      const canPaginate = period !== "day" || searchMode;
+      setHasMore(canPaginate && newNotes.length >= PAGE_SIZE);
+      offsetRef.current = currentOffset + newNotes.length;
     } catch {
-      setNotes([]);
+      if (!append) setNotes([]);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, [dateStr, period, searchMode, searchQuery, selectedDate]);
 
   useFocusEffect(
     useCallback(() => {
-      fetchNotes();
+      offsetRef.current = 0;
+      fetchNotes(false);
     }, [fetchNotes])
   );
+
+  const loadMore = useCallback(() => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    fetchNotes(true);
+  }, [loadingMore, hasMore, fetchNotes]);
 
   const goToPrev = useCallback(() => {
     setSelectedDate((prev) => {
@@ -165,7 +189,10 @@ export default function NotesScreen() {
     );
   };
 
-  // Group notes by date for multi-day mode
+  const footerComponent = loadingMore ? (
+    <ActivityIndicator size="small" color={COLORS.primary} style={{ paddingVertical: 16 }} />
+  ) : null;
+
   const renderContent = () => {
     if (loading) {
       return (
@@ -186,8 +213,8 @@ export default function NotesScreen() {
       );
     }
 
-    if (period !== "day" && !searchMode) {
-      // Group by date
+    if ((period !== "day" || searchMode) && !searchMode) {
+      // Group by date for multi-day/all mode
       const grouped: Record<string, NoteItem[]> = {};
       for (const note of notes) {
         if (!grouped[note.date]) grouped[note.date] = [];
@@ -211,6 +238,9 @@ export default function NotesScreen() {
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           stickySectionHeadersEnabled={false}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={footerComponent}
         />
       );
     }
@@ -222,6 +252,9 @@ export default function NotesScreen() {
         renderItem={renderNote}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        onEndReached={searchMode ? loadMore : undefined}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={searchMode ? footerComponent : null}
       />
     );
   };
@@ -258,7 +291,10 @@ export default function NotesScreen() {
                 setSearchMode(true);
               }
             }}
-            onSubmitEditing={fetchNotes}
+            onSubmitEditing={() => {
+              offsetRef.current = 0;
+              fetchNotes(false);
+            }}
             returnKeyType="search"
           />
           {searchMode && (

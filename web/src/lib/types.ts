@@ -232,10 +232,30 @@ export interface HabitLog {
   created_at?: string;
 }
 
+export interface TodoItemResponse {
+  id: number;
+  habit_id: number;
+  text: string;
+  is_done: boolean;
+  done_date: string | null;
+  created_date: string;
+  is_archived: boolean;
+  is_carried_over: boolean;
+  created_at: string;
+}
+
+export interface TodoSummary {
+  total: number;
+  done: number;
+  pending: number;
+  items: TodoItemResponse[];
+}
+
 export interface HabitTodayItem {
   habit: Habit;
   completed_today: boolean;
   logs: HabitLog[];
+  todo_summary?: TodoSummary;
 }
 
 export interface HabitStreakItem {

@@ -17,7 +17,7 @@ from app.schemas import (
     TodoItemCreateRequest, TodoItemUpdateRequest, TodoItemResponse, TodoSummary,
 )
 from app.auth import get_current_user
-from app.services.openai_service import transcribe_audio, describe_habit_image
+from app.services.openai_service import transcribe_audio, describe_habit_image, refine_transcription
 
 router = APIRouter()
 
@@ -369,6 +369,7 @@ async def log_habit_descriptive(
         with open(audio_path, "wb") as f:
             f.write(await audio.read())
         log_content = await transcribe_audio(audio_path)
+        log_content = await refine_transcription(log_content, context=f"habit log for '{habit.name}'")
         log_type = "voice"
         try:
             os.remove(audio_path)
@@ -484,12 +485,15 @@ def get_habit_logs(
     date_str: Optional[str] = Query(alias="date", default=None),
     date_from: Optional[str] = Query(default=None),
     date_to: Optional[str] = Query(default=None),
+    limit: int = Query(default=30, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Return descriptive habit logs grouped by date."""
     _ensure_defaults(db, user.id)
 
+    all_mode = False
     # Determine date range
     if date_str:
         try:
@@ -507,8 +511,10 @@ def get_habit_logs(
             start_date = date.today()
             end_date = date.today()
     else:
-        start_date = date.today()
+        # "all" mode: no date filters, use pagination
+        all_mode = True
         end_date = date.today()
+        start_date = None
 
     # Get all descriptive habits
     descriptive_habits = (
@@ -528,6 +534,65 @@ def get_habit_logs(
     habit_ids = [h.id for h in descriptive_habits]
     habit_map = {h.id: h for h in descriptive_habits}
 
+    if all_mode:
+        # Get distinct dates that have logs, paginated
+        from sqlalchemy import distinct
+        date_query = (
+            db.query(distinct(HabitLog.date))
+            .filter(
+                HabitLog.user_id == user.id,
+                HabitLog.habit_id.in_(habit_ids),
+            )
+            .order_by(HabitLog.date.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
+        target_dates = [row[0] for row in date_query]
+        if not target_dates:
+            return []
+
+        logs = (
+            db.query(HabitLog)
+            .filter(
+                HabitLog.user_id == user.id,
+                HabitLog.habit_id.in_(habit_ids),
+                HabitLog.date.in_(target_dates),
+            )
+            .order_by(HabitLog.date.desc(), HabitLog.created_at.asc())
+            .all()
+        )
+
+        from collections import defaultdict
+        logs_by_date: dict = defaultdict(list)
+        for log in logs:
+            logs_by_date[log.date].append(log)
+
+        result = []
+        for d in sorted(target_dates, reverse=True):
+            day_logs = logs_by_date.get(d, [])
+            logged_habit_ids = set()
+            entries = []
+            for log in day_logs:
+                if log.habit_id in habit_map and log.content:
+                    habit = habit_map[log.habit_id]
+                    logged_habit_ids.add(log.habit_id)
+                    entries.append(HabitLogEntry(
+                        habit=HabitResponse.model_validate(habit),
+                        log=HabitLogResponse.model_validate(log),
+                    ))
+            unlogged = []
+            for h in descriptive_habits:
+                if h.id not in logged_habit_ids:
+                    unlogged.append(HabitResponse.model_validate(h))
+            if entries or unlogged:
+                result.append(HabitLogDateGroup(
+                    date=d.isoformat(),
+                    entries=entries,
+                    unlogged=unlogged,
+                ))
+        return result
+
     # Get all logs in date range
     logs = (
         db.query(HabitLog)
@@ -543,7 +608,7 @@ def get_habit_logs(
 
     # Group logs by date
     from collections import defaultdict
-    logs_by_date: dict = defaultdict(list)
+    logs_by_date = defaultdict(list)
     for log in logs:
         logs_by_date[log.date].append(log)
 

@@ -117,6 +117,33 @@ async def transcribe_audio(audio_path: str) -> str:
     return transcript.text
 
 
+async def refine_transcription(raw_text: str, context: str = "journal entry") -> str:
+    """Refine raw voice transcription into clean, well-written text."""
+    client = _get_client()
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are a writing assistant. The user has dictated a "
+                    f"{context} via voice. Clean up the raw transcription into "
+                    "well-written, natural prose. Fix grammar, punctuation, and "
+                    "sentence structure. Preserve the original meaning and all "
+                    "details exactly — do not add or remove information. Keep "
+                    "the same tone and person (first person if they used it). "
+                    "Return ONLY the refined text, nothing else."
+                ),
+            },
+            {"role": "user", "content": raw_text},
+        ],
+        temperature=0.3,
+        max_tokens=1000,
+    )
+    refined = response.choices[0].message.content
+    return refined.strip() if refined else raw_text
+
+
 def _extract_json(text: str) -> dict:
     """Extract JSON object from text, handling nested braces and markdown code blocks."""
     # Strip markdown code fences

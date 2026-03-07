@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { COLORS } from "../utils/constants";
 
-export type Period = "day" | "7days" | "30days";
+export type Period = "day" | "7days" | "30days" | "all";
 
 interface PeriodToggleProps {
   period: Period;
@@ -13,6 +13,7 @@ const OPTIONS: { value: Period; label: string }[] = [
   { value: "day", label: "Day" },
   { value: "7days", label: "7 Days" },
   { value: "30days", label: "30 Days" },
+  { value: "all", label: "All" },
 ];
 
 export default function PeriodToggle({ period, onChange }: PeriodToggleProps) {

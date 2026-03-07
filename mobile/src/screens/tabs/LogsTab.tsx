@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   Image,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import client from "../../api/client";
 import { COLORS } from "../../utils/constants";
@@ -56,6 +56,8 @@ function formatSectionDate(dateStr: string): string {
   return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
 }
 
+const PAGE_SIZE = 20;
+
 export default function LogsTab({ selectedDate, isToday, dateStr }: TabProps) {
   const navigation = useNavigation<any>();
   const [period, setPeriod] = useState<Period>("day");
@@ -63,13 +65,29 @@ export default function LogsTab({ selectedDate, isToday, dateStr }: TabProps) {
   const [multiDayData, setMultiDayData] = useState<HabitLogDateGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const offsetRef = useRef(0);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (append = false) => {
     try {
       if (period === "day") {
         const res = await client.get(`/habits/today?date=${dateStr}`);
         setItems(res.data);
         setMultiDayData([]);
+        setHasMore(false);
+      } else if (period === "all") {
+        const currentOffset = append ? offsetRef.current : 0;
+        const res = await client.get(`/habits/logs?limit=${PAGE_SIZE}&offset=${currentOffset}`);
+        const newData: HabitLogDateGroup[] = res.data;
+        if (append) {
+          setMultiDayData((prev) => [...prev, ...newData]);
+        } else {
+          setMultiDayData(newData);
+        }
+        setHasMore(newData.length >= PAGE_SIZE);
+        offsetRef.current = currentOffset + newData.length;
+        setItems([]);
       } else {
         const daysBack = period === "7days" ? 6 : 29;
         const fromDate = new Date(selectedDate);
@@ -78,24 +96,36 @@ export default function LogsTab({ selectedDate, isToday, dateStr }: TabProps) {
         const res = await client.get(`/habits/logs?date_from=${fromStr}&date_to=${dateStr}`);
         setMultiDayData(res.data);
         setItems([]);
+        setHasMore(false);
       }
     } catch {
       // silent
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setLoadingMore(false);
     }
   }, [dateStr, period, selectedDate]);
 
-  useEffect(() => {
-    setLoading(true);
-    fetchData();
-  }, [fetchData]);
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      offsetRef.current = 0;
+      fetchData(false);
+    }, [fetchData])
+  );
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    fetchData();
+    offsetRef.current = 0;
+    fetchData(false);
   }, [fetchData]);
+
+  const loadMore = useCallback(() => {
+    if (loadingMore || !hasMore || period !== "all") return;
+    setLoadingMore(true);
+    fetchData(true);
+  }, [loadingMore, hasMore, period, fetchData]);
 
   const navigateToLog = (habit: any, targetDate: string) => {
     navigation.navigate("DescriptiveHabitLog", {
@@ -116,11 +146,9 @@ export default function LogsTab({ selectedDate, isToday, dateStr }: TabProps) {
     );
   }
 
-  // Multi-day mode
+  // Multi-day mode (7days, 30days, all)
   if (period !== "day") {
-    // Group all entries + unlogged per date into one flat card per habit per date
     const sections = multiDayData.map((group) => {
-      // Merge entries by habit into single cards
       const habitCards: { habit: any; logs: any[] }[] = [];
       const habitMap = new Map<number, { habit: any; logs: any[] }>();
 
@@ -134,7 +162,6 @@ export default function LogsTab({ selectedDate, isToday, dateStr }: TabProps) {
           habitCards.push(card);
         }
       }
-      // Add unlogged habits as cards with empty logs
       for (const h of group.unlogged) {
         if (!habitMap.has(h.id)) {
           habitCards.push({ habit: h, logs: [] });
@@ -169,13 +196,20 @@ export default function LogsTab({ selectedDate, isToday, dateStr }: TabProps) {
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} tintColor={COLORS.primary} />
             }
             stickySectionHeadersEnabled={false}
+            onEndReached={period === "all" ? loadMore : undefined}
+            onEndReachedThreshold={0.3}
+            ListFooterComponent={
+              loadingMore ? (
+                <ActivityIndicator size="small" color={COLORS.primary} style={{ paddingVertical: 16 }} />
+              ) : null
+            }
           />
         )}
       </View>
     );
   }
 
-  // Single-day mode: one card per descriptive habit with all its logs grouped
+  // Single-day mode
   const descriptiveHabits = items.filter(
     (i) => (i.habit.habit_type || "boolean") === "descriptive"
   );
