@@ -30,6 +30,7 @@ class User(Base):
     habit_logs = relationship("HabitLog", back_populates="user")
     todo_items = relationship("TodoItem", back_populates="user")
     notes = relationship("Note", back_populates="user")
+    reminders = relationship("Reminder", back_populates="user")
 
 
 class Meal(Base):
@@ -270,3 +271,19 @@ class Note(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user = relationship("User", back_populates="notes")
+
+
+class Reminder(Base):
+    __tablename__ = "reminder"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    todo_item_id = Column(Integer, ForeignKey("todo_item.id"), nullable=True)
+    text = Column(Text, nullable=False)
+    reminder_time = Column(Text, nullable=False)  # HH:MM format
+    reminder_date = Column(Date, nullable=False)
+    audio_path = Column(Text, nullable=True)  # path to TTS audio file
+    is_triggered = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="reminders")

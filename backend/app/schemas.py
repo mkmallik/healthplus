@@ -497,3 +497,32 @@ class NoteResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# --- Reminders ---
+class ReminderCreateRequest(BaseModel):
+    text: str
+    reminder_time: str  # HH:MM format
+    reminder_date: Optional[str] = None
+    todo_item_id: Optional[int] = None
+
+
+class ReminderResponse(BaseModel):
+    id: int
+    text: str
+    reminder_time: str
+    reminder_date: date
+    audio_path: Optional[str] = None
+    todo_item_id: Optional[int] = None
+    is_triggered: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# --- Voice Log ---
+class VoiceLogResponse(BaseModel):
+    category: str
+    message: str
+    data: Optional[dict] = None

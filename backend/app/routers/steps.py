@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import uuid
@@ -11,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import get_db
-from app.models import User, StepEntry
+from app.models import User, StepEntry, Exercise
 from app.schemas import StepEntryResponse, StepSummary
 from app.auth import get_current_user, create_log
 from app.services.openai_service import analyze_watch_image, transcribe_audio
@@ -109,6 +110,10 @@ async def _process_step_log(step_count, image, audio, step_date, user, db):
         db.add(entry)
         db.flush()
 
+    # Auto-create walking exercise if steps >= 8000
+    if final_step_count >= 8000:
+        _auto_create_walking_exercise(final_step_count, target_date, user, db)
+
     db.commit()
     db.refresh(entry)
 
@@ -158,3 +163,39 @@ def get_steps(
         total_steps=sum(e.step_count for e in entries),
         entries=entry_responses,
     )
+
+
+def _auto_create_walking_exercise(step_count: int, target_date: date, user: User, db: Session):
+    """Create a walking exercise entry when steps >= 8000."""
+    existing = db.query(Exercise).filter(
+        Exercise.user_id == user.id,
+        Exercise.date == target_date,
+        Exercise.exercise_type == "walking",
+        Exercise.description.like("%auto-logged from steps%"),
+    ).first()
+
+    duration = round(step_count / 1300 * 15)
+    calories = round(step_count * 0.04)
+    distance_km = round(step_count / 1300, 1)
+
+    if existing:
+        existing.duration_minutes = duration
+        existing.calories_burned = calories
+        existing.description = f"{step_count:,} steps (~{distance_km} km) - auto-logged from steps"
+    else:
+        exercise = Exercise(
+            user_id=user.id,
+            exercise_type="walking",
+            description=f"{step_count:,} steps (~{distance_km} km) - auto-logged from steps",
+            duration_minutes=duration,
+            calories_burned=calories,
+            intensity="moderate" if step_count < 12000 else "high",
+            muscle_groups=json.dumps(["legs", "glutes", "core"]),
+            analysis=json.dumps({
+                "analysis": f"Walking {step_count:,} steps covering approximately {distance_km} km.",
+                "recovery_advice": "Stay hydrated and stretch your legs.",
+                "health_benefits": ["Improved cardiovascular health", "Better mood", "Weight management"],
+            }),
+            date=target_date,
+        )
+        db.add(exercise)

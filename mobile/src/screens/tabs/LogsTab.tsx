@@ -62,6 +62,7 @@ export default function LogsTab({ selectedDate, isToday, dateStr }: TabProps) {
   const navigation = useNavigation<any>();
   const [period, setPeriod] = useState<Period>("day");
   const [items, setItems] = useState<HabitTodayItem[]>([]);
+  const [exercises, setExercises] = useState<any[]>([]);
   const [multiDayData, setMultiDayData] = useState<HabitLogDateGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -72,8 +73,12 @@ export default function LogsTab({ selectedDate, isToday, dateStr }: TabProps) {
   const fetchData = useCallback(async (append = false) => {
     try {
       if (period === "day") {
-        const res = await client.get(`/habits/today?date=${dateStr}`);
-        setItems(res.data);
+        const [habitsRes, exerciseRes] = await Promise.all([
+          client.get(`/habits/today?date=${dateStr}`),
+          client.get(`/exercise/?date=${dateStr}`).catch(() => ({ data: { exercises: [] } })),
+        ]);
+        setItems(habitsRes.data);
+        setExercises(exerciseRes.data?.exercises || []);
         setMultiDayData([]);
         setHasMore(false);
       } else if (period === "all") {
@@ -291,11 +296,43 @@ export default function LogsTab({ selectedDate, isToday, dateStr }: TabProps) {
             </View>
           ))
         ) : (
-          <View style={styles.noEntriesHint}>
-            <Ionicons name="book-outline" size={18} color={COLORS.textSecondary} />
-            <Text style={styles.noEntriesText}>
-              No descriptive habits yet. Create descriptive habits to start journaling.
-            </Text>
+          exercises.length === 0 ? (
+            <View style={styles.noEntriesHint}>
+              <Ionicons name="book-outline" size={18} color={COLORS.textSecondary} />
+              <Text style={styles.noEntriesText}>
+                No descriptive habits yet. Create descriptive habits to start journaling.
+              </Text>
+            </View>
+          ) : null
+        )}
+
+        {/* Exercise Logs */}
+        {exercises.length > 0 && (
+          <View style={styles.exerciseSection}>
+            <View style={styles.exerciseSectionHeader}>
+              <Ionicons name="fitness" size={18} color={COLORS.exercise} />
+              <Text style={styles.exerciseSectionTitle}>Exercises</Text>
+            </View>
+            {exercises.map((ex: any) => (
+              <View key={ex.id} style={styles.exerciseCard}>
+                <View style={styles.exerciseCardHeader}>
+                  <View style={[styles.exerciseBadge, { backgroundColor: COLORS.exercise + "20" }]}>
+                    <Text style={[styles.exerciseBadgeText, { color: COLORS.exercise }]}>
+                      {ex.exercise_type || "Exercise"}
+                    </Text>
+                  </View>
+                  <Text style={styles.exerciseStats}>
+                    {Math.round(ex.duration_minutes || 0)} min / {Math.round(ex.calories_burned || 0)} kcal
+                  </Text>
+                </View>
+                {ex.description ? (
+                  <Text style={styles.exerciseDesc} numberOfLines={2}>{ex.description}</Text>
+                ) : null}
+                {ex.summary ? (
+                  <Text style={styles.exerciseSummary} numberOfLines={2}>{ex.summary}</Text>
+                ) : null}
+              </View>
+            ))}
           </View>
         )}
       </ScrollView>
@@ -414,6 +451,64 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
 
+  exerciseSection: {
+    marginTop: 16,
+  },
+  exerciseSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 10,
+  },
+  exerciseSectionTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: COLORS.text,
+  },
+  exerciseCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.exercise,
+    padding: 14,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  exerciseCardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  exerciseBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  exerciseBadgeText: {
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  exerciseStats: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: COLORS.textSecondary,
+  },
+  exerciseDesc: {
+    fontSize: 13,
+    color: COLORS.text,
+    marginTop: 6,
+  },
+  exerciseSummary: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    fontStyle: "italic",
+    marginTop: 2,
+    lineHeight: 17,
+  },
   noEntriesHint: {
     flexDirection: "row",
     alignItems: "center",

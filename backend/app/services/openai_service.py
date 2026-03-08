@@ -832,3 +832,76 @@ async def describe_habit_image(image_path: str, habit_name: str) -> str:
     )
 
     return response.choices[0].message.content.strip()
+
+
+async def classify_voice_input(transcription: str, habits: list, todo_habits: list) -> dict:
+    """Classify voice input intent and extract relevant data."""
+    client = _get_client()
+
+    habit_names = ", ".join([f'"{h["name"]}" (id={h["id"]})' for h in habits])
+    todo_names = ", ".join([f'"{h["name"]}" (id={h["id"]})' for h in todo_habits])
+
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are an intelligent voice command classifier for a health tracking app. "
+                    "The user speaks a voice command. Classify it into one of these categories:\n\n"
+                    "1. 'food' — logging food/meals (e.g. 'I had 2 rotis and dal for lunch', 'ate a banana')\n"
+                    "2. 'exercise' — logging exercise/workout (e.g. 'I did 30 minutes of running', 'played badminton for an hour')\n"
+                    "3. 'steps' — updating step count (e.g. 'I walked 10000 steps today', '8500 steps')\n"
+                    "4. 'body_metric' — logging weight/waist/biceps (e.g. 'my weight is 72 kg', 'waist 32 inches')\n"
+                    "5. 'habit_log' — logging a descriptive habit (e.g. 'for gratitude log: I am grateful for...', 'system design: studied LRU cache')\n"
+                    "6. 'todo' — adding a todo item (e.g. 'add todo: buy groceries', 'remind me to call doctor', 'add task: finish report')\n"
+                    "7. 'note' — adding a personal note (e.g. 'note: meeting went well today', 'journal entry about...')\n"
+                    "8. 'reminder' — setting a reminder with a specific time (e.g. 'remind me at 3pm to take medicine', 'set reminder for 6:30 to go for a walk')\n\n"
+                    f"Available descriptive habits: [{habit_names}]\n"
+                    f"Available todo habits: [{todo_names}]\n\n"
+                    "Return ONLY a JSON object with:\n"
+                    '- "category": one of the above categories\n'
+                    '- "content": the relevant content/description extracted from the voice input\n'
+                    '- "habit_id": integer habit ID if category is habit_log or todo (match to closest habit name), or null\n'
+                    '- "habit_name": matched habit name if applicable, or null\n'
+                    '- "reminder_time": time string in HH:MM (24h) format if category is reminder, or null\n'
+                    '- "reminder_text": the reminder message if category is reminder, or null\n'
+                    '- "todo_habit_id": integer todo habit ID if category is todo (pick the most relevant todo habit), or null\n\n'
+                    "Be smart about classification. If someone says 'I did system design today - studied consistent hashing', "
+                    "and there's a 'System Design' descriptive habit, classify it as habit_log. "
+                    "If someone says 'add buy milk to my todo', classify as todo. "
+                    "If someone says 'remind me at 5pm to drink water', classify as reminder.\n\n"
+                    "Return ONLY the JSON object."
+                ),
+            },
+            {"role": "user", "content": transcription},
+        ],
+        temperature=0.2,
+        max_tokens=500,
+    )
+
+    content = response.choices[0].message.content.strip()
+    result = _extract_json(content)
+
+    result.setdefault("category", "note")
+    result.setdefault("content", transcription)
+    result.setdefault("habit_id", None)
+    result.setdefault("habit_name", None)
+    result.setdefault("reminder_time", None)
+    result.setdefault("reminder_text", None)
+    result.setdefault("todo_habit_id", None)
+
+    return result
+
+
+async def generate_tts(text: str, output_path: str) -> str:
+    """Generate TTS audio file using OpenAI TTS API."""
+    client = _get_client()
+    response = client.audio.speech.create(
+        model="tts-1",
+        voice="alloy",
+        input=text,
+    )
+    response.stream_to_file(output_path)
+    return output_path
+

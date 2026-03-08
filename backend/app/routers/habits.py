@@ -96,7 +96,7 @@ def _check_auto_completion(db: Session, user_id: int, habit: Habit, target_date:
             .filter(StepEntry.user_id == user_id, StepEntry.date == target_date)
             .scalar()
         )
-        return (step_row or 0) >= 5000
+        return (step_row or 0) >= 8000
     return False
 
 

@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.database import Base, engine
-from app.routers import auth, food, meals, goals, dashboard, food_library, saved_meals, exercise, steps, body_metrics, stats, habits, notes
+from app.routers import auth, food, meals, goals, dashboard, food_library, saved_meals, exercise, steps, body_metrics, stats, habits, notes, voice_log, reminders
 
 
 @asynccontextmanager
@@ -102,6 +102,8 @@ app.include_router(body_metrics.router, prefix="/api/body-metrics", tags=["body-
 app.include_router(stats.router, prefix="/api/stats", tags=["stats"])
 app.include_router(habits.router, prefix="/api/habits", tags=["habits"])
 app.include_router(notes.router, prefix="/api/notes", tags=["notes"])
+app.include_router(voice_log.router, prefix="/api/voice-log", tags=["voice-log"])
+app.include_router(reminders.router, prefix="/api/reminders", tags=["reminders"])
 
 
 @app.get("/api/health")

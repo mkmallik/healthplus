@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { Audio } from "expo-av";
 import client from "../api/client";
 import { COLORS } from "../utils/constants";
 import { useToast } from "../components/Toast";
@@ -33,6 +34,7 @@ export default function TodoScreen() {
   const { showToast } = useToast();
 
   const [summary, setSummary] = useState<TodoSummaryData | null>(null);
+  const [reminders, setReminders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [newText, setNewText] = useState("");
   const [adding, setAdding] = useState(false);
@@ -52,10 +54,48 @@ export default function TodoScreen() {
     }
   }, [habitId, dateStr]);
 
+  const fetchReminders = useCallback(async () => {
+    try {
+      const res = await client.get(`/reminders?date=${dateStr}`);
+      setReminders(res.data);
+    } catch {}
+  }, [dateStr]);
+
   useEffect(() => {
     setLoading(true);
     fetchTodos();
-  }, [fetchTodos]);
+    fetchReminders();
+  }, [fetchTodos, fetchReminders]);
+
+  useEffect(() => {
+    const checkReminders = () => {
+      const now = new Date();
+      const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+      reminders.forEach(async (r: any) => {
+        if (!r.is_triggered && r.reminder_time === currentTime && r.audio_path) {
+          try {
+            const baseUrl = client.defaults.baseURL?.replace("/api", "") || "";
+            const { sound } = await Audio.Sound.createAsync(
+              { uri: `${baseUrl}${r.audio_path}` }
+            );
+            for (let i = 0; i < 3; i++) {
+              await sound.replayAsync();
+              await new Promise(resolve => setTimeout(resolve, 3000));
+            }
+            await sound.unloadAsync();
+            await client.patch(`/reminders/${r.id}/trigger`);
+            fetchReminders();
+            showToast(`Reminder: ${r.text}`, "info");
+          } catch (err) {
+            showToast(`Reminder: ${r.text}`, "info");
+          }
+        }
+      });
+    };
+
+    const interval = setInterval(checkReminders, 30000);
+    return () => clearInterval(interval);
+  }, [reminders, fetchReminders, showToast]);
 
   const addItem = async () => {
     const text = newText.trim();
@@ -230,6 +270,50 @@ export default function TodoScreen() {
             </Text>
           </View>
         }
+        ListFooterComponent={
+          reminders.length > 0 ? (
+            <View style={styles.remindersSection}>
+              <View style={styles.remindersSectionHeader}>
+                <Ionicons name="alarm-outline" size={18} color="#FF7043" />
+                <Text style={styles.remindersSectionTitle}>Reminders</Text>
+              </View>
+              {reminders.map((r: any) => (
+                <View key={r.id} style={[styles.reminderCard, r.is_triggered && styles.reminderTriggered]}>
+                  <View style={styles.reminderTimeRow}>
+                    <View style={styles.reminderTimeBadge}>
+                      <Ionicons name="time-outline" size={14} color="#FF7043" />
+                      <Text style={styles.reminderTimeText}>{r.reminder_time}</Text>
+                    </View>
+                    {r.is_triggered && (
+                      <View style={styles.triggeredBadge}>
+                        <Text style={styles.triggeredText}>Done</Text>
+                      </View>
+                    )}
+                    {r.audio_path && !r.is_triggered && (
+                      <TouchableOpacity
+                        onPress={async () => {
+                          try {
+                            const baseUrl = client.defaults.baseURL?.replace("/api", "") || "";
+                            const { sound } = await Audio.Sound.createAsync(
+                              { uri: `${baseUrl}${r.audio_path}` }
+                            );
+                            await sound.playAsync();
+                          } catch {
+                            showToast("Failed to play audio", "error");
+                          }
+                        }}
+                        style={styles.playButton}
+                      >
+                        <Ionicons name="play-circle" size={28} color="#FF7043" />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                  <Text style={[styles.reminderText, r.is_triggered && { color: COLORS.textSecondary }]}>{r.text}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null
+        }
       />
 
       {/* Bottom input */}
@@ -396,5 +480,69 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
+  },
+  remindersSection: {
+    marginTop: 12,
+    padding: 16,
+  },
+  remindersSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 10,
+  },
+  remindersSectionTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: COLORS.text,
+  },
+  reminderCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: "#FF7043",
+    padding: 14,
+    marginBottom: 8,
+  },
+  reminderTriggered: {
+    opacity: 0.6,
+  },
+  reminderTimeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  reminderTimeBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#FF704320",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  reminderTimeText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#FF7043",
+  },
+  triggeredBadge: {
+    backgroundColor: COLORS.primary + "20",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginLeft: 8,
+  },
+  triggeredText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: COLORS.primary,
+  },
+  playButton: {
+    marginLeft: "auto",
+  },
+  reminderText: {
+    fontSize: 14,
+    color: COLORS.text,
+    marginTop: 6,
   },
 });

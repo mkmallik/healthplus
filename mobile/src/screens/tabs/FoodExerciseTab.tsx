@@ -419,14 +419,23 @@ export default function FoodExerciseTab({ selectedDate, isToday, dateStr }: TabP
         )}
       </ScrollView>
 
-      {/* Floating Action Button */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => navigation.navigate("AddFood")}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="add" size={32} color={COLORS.surface} />
-      </TouchableOpacity>
+      {/* Floating Action Buttons */}
+      <View style={styles.fabContainer}>
+        <TouchableOpacity
+          style={[styles.fabSecondary, styles.fabMic]}
+          onPress={() => navigation.navigate("UniversalVoiceLog", { dateStr })}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="mic" size={26} color={COLORS.surface} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => navigation.navigate("AddFood")}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="add" size={32} color={COLORS.surface} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -766,10 +775,30 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     lineHeight: 19,
   },
-  fab: {
+  fabContainer: {
     position: "absolute",
     bottom: 24,
     right: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  fabMic: {
+    backgroundColor: "#7E57C2",
+  },
+  fabSecondary: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+  },
+  fab: {
     width: 64,
     height: 64,
     borderRadius: 32,
