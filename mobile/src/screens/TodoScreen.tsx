@@ -18,6 +18,7 @@ import { Audio } from "expo-av";
 import client from "../api/client";
 import { COLORS } from "../utils/constants";
 import { useToast } from "../components/Toast";
+import { useReminders } from "../context/ReminderContext";
 import type { TodoItemData, ReminderData } from "./tabs/types";
 
 interface TodoSummaryData {
@@ -67,37 +68,7 @@ export default function TodoScreen() {
     fetchReminders();
   }, [fetchTodos, fetchReminders]);
 
-  useEffect(() => {
-    const checkReminders = () => {
-      const now = new Date();
-      const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-      reminders.forEach(async (r) => {
-        if (!r.is_triggered_today && r.reminder_time === currentTime && r.audio_path) {
-          try {
-            await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-            const baseUrl = client.defaults.baseURL?.replace("/api", "") || "";
-            const audioUrl = r.audio_path!.startsWith("/") ? `${baseUrl}${r.audio_path}` : `${baseUrl}/uploads/${r.audio_path}`;
-            const { sound } = await Audio.Sound.createAsync(
-              { uri: audioUrl }
-            );
-            for (let i = 0; i < 3; i++) {
-              await sound.replayAsync();
-              await new Promise(resolve => setTimeout(resolve, 3000));
-            }
-            await sound.unloadAsync();
-            await client.patch(`/reminders/${r.id}/trigger`);
-            fetchReminders();
-            showToast(`Reminder: ${r.text}`, "info");
-          } catch (err) {
-            showToast(`Reminder: ${r.text}`, "info");
-          }
-        }
-      });
-    };
-
-    const interval = setInterval(checkReminders, 30000);
-    return () => clearInterval(interval);
-  }, [reminders, fetchReminders, showToast]);
+  // Reminder alarm is handled globally by ReminderProvider
 
   const playReminderAudio = async (audioPath: string) => {
     try {

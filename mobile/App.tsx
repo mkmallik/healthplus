@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthProvider, useAuth } from "./src/context/AuthContext";
 import { ToastProvider } from "./src/components/Toast";
+import { ReminderProvider } from "./src/context/ReminderContext";
 import LoginScreen from "./src/screens/LoginScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import CameraScreen from "./src/screens/CameraScreen";
@@ -187,7 +188,9 @@ export default function App() {
     <AuthProvider>
       <ToastProvider>
         <NavigationContainer>
-          <AppNavigator />
+          <ReminderProvider>
+            <AppNavigator />
+          </ReminderProvider>
         </NavigationContainer>
       </ToastProvider>
     </AuthProvider>

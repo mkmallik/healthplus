@@ -199,6 +199,44 @@ def delete_reminder(
     return {"detail": "Reminder deleted"}
 
 
+@router.patch("/{reminder_id}/snooze")
+def snooze_reminder(
+    reminder_id: int,
+    minutes: int = Query(default=5),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Snooze a reminder by creating a one-time snoozed copy at current time + minutes."""
+    reminder = db.query(Reminder).filter(
+        Reminder.id == reminder_id, Reminder.user_id == user.id
+    ).first()
+    if not reminder:
+        raise HTTPException(status_code=404, detail="Reminder not found")
+
+    from datetime import datetime as dt
+    now = dt.now()
+    snooze_time = now + timedelta(minutes=minutes)
+    new_time = f"{snooze_time.hour:02d}:{snooze_time.minute:02d}"
+
+    # Create a snoozed copy
+    snoozed = Reminder(
+        user_id=user.id,
+        todo_item_id=reminder.todo_item_id,
+        text=reminder.text,
+        reminder_time=new_time,
+        reminder_date=date.today(),
+        audio_path=reminder.audio_path,
+        is_triggered=False,
+        recurrence="onetime",
+        is_active=True,
+    )
+    db.add(snoozed)
+    db.commit()
+    db.refresh(snoozed)
+
+    return _to_response(db, snoozed, date.today())
+
+
 @router.patch("/{reminder_id}/trigger")
 def trigger_reminder(
     reminder_id: int,

@@ -326,28 +326,52 @@ async def _handle_todo(content: str, todo_habit_id: Optional[int],
                        target_date: date, user: User, db: Session) -> VoiceLogResponse:
     """Handle adding a todo item from voice."""
     if not todo_habit_id:
-        # Find first todo habit
+        # Find first active todo habit
         habit = db.query(Habit).filter(
             Habit.user_id == user.id, Habit.is_active == True, Habit.habit_type == "todo"
         ).first()
         if not habit:
-            return VoiceLogResponse(category="todo", message="No todo lists found. Create a todo habit first.", data=None)
+            # Auto-create a default "Todo" habit
+            habit = Habit(
+                user_id=user.id, name="Todo", icon="checkbox",
+                color="#00D4AA", frequency="daily", frequency_target=1,
+                habit_type="todo", is_default=False, is_active=True,
+            )
+            db.add(habit)
+            db.flush()
         todo_habit_id = habit.id
+    else:
+        habit = db.query(Habit).filter(Habit.id == todo_habit_id, Habit.user_id == user.id).first()
+        if not habit:
+            # Fallback to first todo habit
+            habit = db.query(Habit).filter(
+                Habit.user_id == user.id, Habit.is_active == True, Habit.habit_type == "todo"
+            ).first()
+            if not habit:
+                habit = Habit(
+                    user_id=user.id, name="Todo", icon="checkbox",
+                    color="#00D4AA", frequency="daily", frequency_target=1,
+                    habit_type="todo", is_default=False, is_active=True,
+                )
+                db.add(habit)
+                db.flush()
+            todo_habit_id = habit.id
 
-    habit = db.query(Habit).filter(Habit.id == todo_habit_id, Habit.user_id == user.id).first()
-    if not habit:
-        return VoiceLogResponse(category="todo", message="Todo list not found.", data=None)
+    # Capitalize first letter of content
+    clean_content = content.strip()
+    if clean_content:
+        clean_content = clean_content[0].upper() + clean_content[1:]
 
     item = TodoItem(
-        habit_id=todo_habit_id, user_id=user.id, text=content,
+        habit_id=todo_habit_id, user_id=user.id, text=clean_content,
         is_done=False, created_date=target_date, is_archived=False,
     )
     db.add(item)
     db.commit()
     return VoiceLogResponse(
         category="todo",
-        message=f"Added to '{habit.name}': {content}",
-        data={"todo_habit_id": todo_habit_id, "habit_name": habit.name, "text": content},
+        message=f"Added to '{habit.name}': {clean_content}",
+        data={"todo_habit_id": todo_habit_id, "habit_name": habit.name, "text": clean_content},
     )
 
 
@@ -416,9 +440,14 @@ async def _handle_note(content: str, raw_transcription: str, target_date: date,
     """Handle adding a note from voice."""
     refined = await refine_transcription(content, context="personal note")
 
+    # Generate a short title from the content
+    title = refined[:50].split(".")[0].strip()
+    if len(title) > 40:
+        title = title[:40].rsplit(" ", 1)[0] + "..."
+
     note = Note(
         user_id=user.id,
-        title="",
+        title=title,
         content=refined,
         date=target_date,
     )
@@ -427,5 +456,5 @@ async def _handle_note(content: str, raw_transcription: str, target_date: date,
     return VoiceLogResponse(
         category="note",
         message=f"Note saved: {refined[:80]}{'...' if len(refined) > 80 else ''}",
-        data={"content": refined},
+        data={"note_id": note.id, "title": title, "content": refined},
     )

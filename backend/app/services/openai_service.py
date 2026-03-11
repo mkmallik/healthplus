@@ -849,29 +849,41 @@ async def classify_voice_input(transcription: str, habits: list, todo_habits: li
                 "content": (
                     "You are an intelligent voice command classifier for a health tracking app. "
                     "The user speaks a voice command. Classify it into one of these categories:\n\n"
-                    "1. 'food' — logging food/meals (e.g. 'I had 2 rotis and dal for lunch', 'ate a banana')\n"
-                    "2. 'exercise' — logging exercise/workout (e.g. 'I did 30 minutes of running', 'played badminton for an hour')\n"
+                    "1. 'food' — logging food/meals eaten (e.g. 'I had 2 rotis and dal for lunch', 'ate a banana')\n"
+                    "2. 'exercise' — logging exercise/workout done (e.g. 'I did 30 minutes of running', 'played badminton for an hour')\n"
                     "3. 'steps' — updating step count (e.g. 'I walked 10000 steps today', '8500 steps')\n"
-                    "4. 'body_metric' — logging weight/waist/biceps (e.g. 'my weight is 72 kg', 'waist 32 inches')\n"
-                    "5. 'habit_log' — logging a descriptive habit (e.g. 'for gratitude log: I am grateful for...', 'system design: studied LRU cache')\n"
-                    "6. 'todo' — adding a todo item (e.g. 'add todo: buy groceries', 'remind me to call doctor', 'add task: finish report')\n"
-                    "7. 'note' — adding a personal note (e.g. 'note: meeting went well today', 'journal entry about...')\n"
-                    "8. 'reminder' — setting a reminder with a specific time (e.g. 'remind me at 3pm to take medicine', 'set reminder for 6:30 to go for a walk')\n\n"
+                    "4. 'body_metric' — logging weight/waist/biceps measurement (e.g. 'my weight is 72 kg', 'waist 32 inches')\n"
+                    "5. 'habit_log' — logging a descriptive habit ONLY if it matches one of the available descriptive habits below (e.g. 'for gratitude log: I am grateful for...', 'system design: studied LRU cache')\n"
+                    "6. 'todo' — adding a task/to-do item. Keywords: 'add todo', 'add task', 'need to', 'have to', 'buy', 'call', 'schedule', 'book', 'finish', 'complete', 'submit', 'pick up', 'get', 'do', 'make', etc. (e.g. 'add todo buy groceries', 'need to call the doctor', 'buy milk and eggs', 'finish the report by Friday', 'get haircut tomorrow', 'schedule dentist appointment'). IMPORTANT: If the input sounds like a task/action item the user needs to do (not something they already did), classify as 'todo'.\n"
+                    "7. 'note' — adding a personal note, thought, observation, or journal entry. Keywords: 'note', 'journal', 'thought', 'remember that', 'memo'. Also use for reflections, observations, or general text that doesn't fit other categories. (e.g. 'note: meeting went well today', 'had a great conversation with John about the project', 'remember that the pharmacy closes at 8pm', 'feeling grateful for the weather today')\n"
+                    "8. 'reminder' — setting a reminder with a SPECIFIC TIME mentioned (e.g. 'remind me at 3pm to take medicine', 'set reminder for 6:30 to go for a walk', 'alarm at 7am to wake up'). MUST have a time. If no time is mentioned, classify as 'todo' instead.\n\n"
                     f"Available descriptive habits: [{habit_names}]\n"
-                    f"Available todo habits: [{todo_names}]\n\n"
+                    f"Available todo habits (for category 'todo'): [{todo_names}]\n\n"
+                    "CLASSIFICATION PRIORITY:\n"
+                    "- If input mentions a specific TIME for a reminder → 'reminder'\n"
+                    "- If input matches a descriptive habit name → 'habit_log'\n"
+                    "- If input is about food eaten/consumed → 'food'\n"
+                    "- If input is about exercise/workout done → 'exercise'\n"
+                    "- If input mentions step count → 'steps'\n"
+                    "- If input mentions weight/waist/biceps measurement → 'body_metric'\n"
+                    "- If input is a task/action the user needs to do → 'todo'\n"
+                    "- Everything else (thoughts, reflections, observations, journal entries) → 'note'\n\n"
                     "Return ONLY a JSON object with:\n"
                     '- "category": one of the above categories\n'
-                    '- "content": the relevant content/description extracted from the voice input\n'
-                    '- "habit_id": integer habit ID if category is habit_log or todo (match to closest habit name), or null\n'
+                    '- "content": the relevant content/description extracted from the voice input (clean it up, remove filler words like "add todo", "note:", etc.)\n'
+                    '- "habit_id": integer habit ID if category is habit_log (match to closest habit name), or null\n'
                     '- "habit_name": matched habit name if applicable, or null\n'
                     '- "reminder_time": time string in HH:MM (24h) format if category is reminder, or null\n'
                     '- "reminder_text": the reminder message if category is reminder, or null\n'
                     '- "recurrence": one of "onetime", "daily", "weekly", "biweekly", "monthly" if category is reminder (default "onetime" if not specified), or null\n'
                     '- "todo_habit_id": integer todo habit ID if category is todo (pick the most relevant todo habit), or null\n\n'
-                    "Be smart about classification. If someone says 'I did system design today - studied consistent hashing', "
-                    "and there's a 'System Design' descriptive habit, classify it as habit_log. "
-                    "If someone says 'add buy milk to my todo', classify as todo. "
-                    "If someone says 'remind me at 5pm to drink water', classify as reminder.\n\n"
+                    "Examples:\n"
+                    '- "buy groceries" → {"category": "todo", "content": "Buy groceries", ...}\n'
+                    '- "need to call mom" → {"category": "todo", "content": "Call mom", ...}\n'
+                    '- "note meeting went well today" → {"category": "note", "content": "Meeting went well today", ...}\n'
+                    '- "had a great idea about the app redesign" → {"category": "note", "content": "Great idea about the app redesign", ...}\n'
+                    '- "remind me at 5pm to drink water" → {"category": "reminder", "reminder_time": "17:00", ...}\n'
+                    '- "remind me every day at 8am to take vitamins" → {"category": "reminder", "recurrence": "daily", ...}\n\n'
                     "Return ONLY the JSON object."
                 ),
             },
