@@ -9,15 +9,19 @@ import {
   Platform,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { Audio } from "expo-av";
 import client from "../../api/client";
 import { COLORS } from "../../utils/constants";
 import { useToast } from "../../components/Toast";
-import type { TabProps, HabitTodayItem, TodoItemData } from "./types";
+import type { TabProps, HabitTodayItem, TodoItemData, ReminderData } from "./types";
 
 export default function TodoTab({ selectedDate, isToday, dateStr }: TabProps) {
   const { showToast } = useToast();
+  const navigation = useNavigation<any>();
   const [todayHabits, setTodayHabits] = useState<HabitTodayItem[]>([]);
+  const [reminders, setReminders] = useState<ReminderData[]>([]);
   const [loading, setLoading] = useState(true);
   const [newTexts, setNewTexts] = useState<Record<number, string>>({});
   const [adding, setAdding] = useState<Record<number, boolean>>({});
@@ -34,10 +38,37 @@ export default function TodoTab({ selectedDate, isToday, dateStr }: TabProps) {
     }
   }, [dateStr]);
 
+  const fetchReminders = useCallback(async () => {
+    try {
+      const res = await client.get(`/reminders?date=${dateStr}`);
+      setReminders(res.data);
+    } catch {
+      // silent
+    }
+  }, [dateStr]);
+
+  const playReminderAudio = async (audioPath: string) => {
+    try {
+      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+      const baseUrl = client.defaults.baseURL?.replace("/api", "") || "";
+      const url = audioPath.startsWith("/") ? `${baseUrl}${audioPath}` : `${baseUrl}/uploads/${audioPath}`;
+      const { sound } = await Audio.Sound.createAsync({ uri: url });
+      await sound.playAsync();
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          sound.unloadAsync();
+        }
+      });
+    } catch {
+      showToast("Failed to play audio", "error");
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
     fetchData();
-  }, [fetchData]);
+    fetchReminders();
+  }, [fetchData, fetchReminders]);
 
   const toggleItem = async (habitId: number, item: TodoItemData) => {
     try {
@@ -220,6 +251,59 @@ export default function TodoTab({ selectedDate, isToday, dateStr }: TabProps) {
             </View>
           );
         })}
+
+        {/* Reminders section */}
+        <View style={styles.remindersSection}>
+          <View style={styles.remindersSectionHeader}>
+            <Ionicons name="alarm-outline" size={20} color="#FF7043" />
+            <Text style={styles.remindersSectionTitle}>Reminders</Text>
+            <TouchableOpacity
+              style={styles.addReminderBtn}
+              onPress={() => navigation.navigate("CreateReminder", { dateStr })}
+            >
+              <Ionicons name="add" size={18} color="#FF7043" />
+              <Text style={styles.addReminderBtnText}>Add</Text>
+            </TouchableOpacity>
+          </View>
+          {reminders.length === 0 ? (
+            <Text style={styles.noRemindersText}>No reminders for this day</Text>
+          ) : (
+            reminders.map((r) => (
+              <View key={r.id} style={[styles.reminderCard, r.is_triggered_today && styles.reminderTriggered]}>
+                <View style={styles.reminderTopRow}>
+                  <View style={styles.reminderTimeBadge}>
+                    <Ionicons name="time-outline" size={14} color="#FF7043" />
+                    <Text style={styles.reminderTimeText}>{r.reminder_time}</Text>
+                  </View>
+                  {r.recurrence !== "onetime" && (
+                    <View style={styles.recurrenceBadge}>
+                      <Ionicons name="repeat" size={12} color={COLORS.primary} />
+                      <Text style={styles.recurrenceBadgeText}>
+                        {r.recurrence === "biweekly" ? "Bi-weekly" : r.recurrence.charAt(0).toUpperCase() + r.recurrence.slice(1)}
+                      </Text>
+                    </View>
+                  )}
+                  {r.is_triggered_today && (
+                    <View style={styles.triggeredBadge}>
+                      <Text style={styles.triggeredBadgeText}>Done</Text>
+                    </View>
+                  )}
+                  {r.audio_path && (
+                    <TouchableOpacity
+                      onPress={() => playReminderAudio(r.audio_path!)}
+                      style={styles.playBtn}
+                    >
+                      <Ionicons name="play-circle" size={30} color="#FF7043" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <Text style={[styles.reminderText, r.is_triggered_today && { color: COLORS.textSecondary }]}>
+                  {r.text}
+                </Text>
+              </View>
+            ))
+          )}
+        </View>
       </KeyboardAwareScrollView>
     </View>
   );
@@ -390,5 +474,105 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
+  },
+  remindersSection: {
+    marginTop: 16,
+  },
+  remindersSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 12,
+  },
+  remindersSectionTitle: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: COLORS.text,
+    flex: 1,
+  },
+  addReminderBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    backgroundColor: "#FF704320",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
+  },
+  addReminderBtnText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#FF7043",
+  },
+  noRemindersText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontStyle: "italic",
+    textAlign: "center",
+    paddingVertical: 16,
+  },
+  reminderCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: "#FF7043",
+    padding: 14,
+    marginBottom: 8,
+  },
+  reminderTriggered: {
+    opacity: 0.6,
+  },
+  reminderTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  reminderTimeBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#FF704320",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  reminderTimeText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#FF7043",
+  },
+  recurrenceBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    backgroundColor: COLORS.primary + "20",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    marginLeft: 8,
+  },
+  recurrenceBadgeText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: COLORS.primary,
+  },
+  triggeredBadge: {
+    backgroundColor: COLORS.primary + "20",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginLeft: 8,
+  },
+  triggeredBadgeText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: COLORS.primary,
+  },
+  playBtn: {
+    marginLeft: "auto",
+  },
+  reminderText: {
+    fontSize: 14,
+    color: COLORS.text,
+    marginTop: 6,
   },
 });

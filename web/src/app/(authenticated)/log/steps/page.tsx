@@ -59,7 +59,7 @@ export default function StepsLogPage() {
           onChange={(e) => setStepCount(e.target.value)}
           placeholder="e.g. 8500"
           maxLength={6}
-          className="w-full rounded-lg border border-border bg-white px-4 py-4 text-center text-3xl font-bold text-text outline-none transition-colors focus:border-steps"
+          className="w-full rounded-lg border border-border bg-surface px-4 py-4 text-center text-3xl font-bold text-text outline-none transition-colors focus:border-steps"
           style={{ caretColor: COLORS.steps }}
         />
         {stepCount && parseInt(stepCount, 10) > 0 && (

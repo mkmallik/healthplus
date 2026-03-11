@@ -1,14 +1,15 @@
 export const COLORS = {
-  primary: "#4CAF50",
-  primaryDark: "#388E3C",
-  primaryLight: "#C8E6C9",
+  primary: "#22c55e",
+  primaryDark: "#16a34a",
+  primaryLight: "rgba(34,197,94,0.15)",
   accent: "#FF9800",
-  background: "#F5F5F5",
-  surface: "#FFFFFF",
-  error: "#F44336",
-  text: "#212121",
-  textSecondary: "#757575",
-  border: "#E0E0E0",
+  background: "#0a0a0a",
+  surface: "#141414",
+  surface2: "#1a1a1a",
+  error: "#ef4444",
+  text: "#f4f4f5",
+  textSecondary: "#a1a1aa",
+  border: "#27272a",
   breakfast: "#FF9800",
   lunch: "#4CAF50",
   dinner: "#2196F3",
@@ -23,7 +24,7 @@ export const COLORS = {
   waist: "#78909C",
   biceps: "#673AB7",
   streak: "#FF5722",
-  streakInactive: "#BDBDBD",
+  streakInactive: "#52525b",
 } as const;
 
 export const MEAL_LABELS: Record<string, string> = {

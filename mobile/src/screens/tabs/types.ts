@@ -126,6 +126,20 @@ export interface HabitStreakItem {
   completed_today: boolean;
 }
 
+export interface ReminderData {
+  id: number;
+  text: string;
+  reminder_time: string;
+  reminder_date: string;
+  audio_path: string | null;
+  todo_item_id: number | null;
+  is_triggered: boolean;
+  recurrence: string;
+  is_active: boolean;
+  is_triggered_today: boolean;
+  created_at: string;
+}
+
 export interface TabProps {
   selectedDate: Date;
   isToday: boolean;

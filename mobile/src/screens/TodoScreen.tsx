@@ -18,7 +18,7 @@ import { Audio } from "expo-av";
 import client from "../api/client";
 import { COLORS } from "../utils/constants";
 import { useToast } from "../components/Toast";
-import type { TodoItemData } from "./tabs/types";
+import type { TodoItemData, ReminderData } from "./tabs/types";
 
 interface TodoSummaryData {
   total: number;
@@ -34,7 +34,7 @@ export default function TodoScreen() {
   const { showToast } = useToast();
 
   const [summary, setSummary] = useState<TodoSummaryData | null>(null);
-  const [reminders, setReminders] = useState<any[]>([]);
+  const [reminders, setReminders] = useState<ReminderData[]>([]);
   const [loading, setLoading] = useState(true);
   const [newText, setNewText] = useState("");
   const [adding, setAdding] = useState(false);
@@ -71,12 +71,14 @@ export default function TodoScreen() {
     const checkReminders = () => {
       const now = new Date();
       const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-      reminders.forEach(async (r: any) => {
-        if (!r.is_triggered && r.reminder_time === currentTime && r.audio_path) {
+      reminders.forEach(async (r) => {
+        if (!r.is_triggered_today && r.reminder_time === currentTime && r.audio_path) {
           try {
+            await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
             const baseUrl = client.defaults.baseURL?.replace("/api", "") || "";
+            const audioUrl = r.audio_path!.startsWith("/") ? `${baseUrl}${r.audio_path}` : `${baseUrl}/uploads/${r.audio_path}`;
             const { sound } = await Audio.Sound.createAsync(
-              { uri: `${baseUrl}${r.audio_path}` }
+              { uri: audioUrl }
             );
             for (let i = 0; i < 3; i++) {
               await sound.replayAsync();
@@ -96,6 +98,25 @@ export default function TodoScreen() {
     const interval = setInterval(checkReminders, 30000);
     return () => clearInterval(interval);
   }, [reminders, fetchReminders, showToast]);
+
+  const playReminderAudio = async (audioPath: string) => {
+    try {
+      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+      const baseUrl = client.defaults.baseURL?.replace("/api", "") || "";
+      const url = audioPath.startsWith("/") ? `${baseUrl}${audioPath}` : `${baseUrl}/uploads/${audioPath}`;
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: url }
+      );
+      await sound.playAsync();
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          sound.unloadAsync();
+        }
+      });
+    } catch {
+      showToast("Failed to play audio", "error");
+    }
+  };
 
   const addItem = async () => {
     const text = newText.trim();
@@ -277,38 +298,36 @@ export default function TodoScreen() {
                 <Ionicons name="alarm-outline" size={18} color="#FF7043" />
                 <Text style={styles.remindersSectionTitle}>Reminders</Text>
               </View>
-              {reminders.map((r: any) => (
-                <View key={r.id} style={[styles.reminderCard, r.is_triggered && styles.reminderTriggered]}>
+              {reminders.map((r) => (
+                <View key={r.id} style={[styles.reminderCard, r.is_triggered_today && styles.reminderTriggered]}>
                   <View style={styles.reminderTimeRow}>
                     <View style={styles.reminderTimeBadge}>
                       <Ionicons name="time-outline" size={14} color="#FF7043" />
                       <Text style={styles.reminderTimeText}>{r.reminder_time}</Text>
                     </View>
-                    {r.is_triggered && (
+                    {r.recurrence !== "onetime" && (
+                      <View style={styles.recurrenceBadge}>
+                        <Ionicons name="repeat" size={12} color={COLORS.primary} />
+                        <Text style={styles.recurrenceBadgeText}>
+                          {r.recurrence === "biweekly" ? "Bi-weekly" : r.recurrence.charAt(0).toUpperCase() + r.recurrence.slice(1)}
+                        </Text>
+                      </View>
+                    )}
+                    {r.is_triggered_today && (
                       <View style={styles.triggeredBadge}>
                         <Text style={styles.triggeredText}>Done</Text>
                       </View>
                     )}
-                    {r.audio_path && !r.is_triggered && (
+                    {r.audio_path && (
                       <TouchableOpacity
-                        onPress={async () => {
-                          try {
-                            const baseUrl = client.defaults.baseURL?.replace("/api", "") || "";
-                            const { sound } = await Audio.Sound.createAsync(
-                              { uri: `${baseUrl}${r.audio_path}` }
-                            );
-                            await sound.playAsync();
-                          } catch {
-                            showToast("Failed to play audio", "error");
-                          }
-                        }}
+                        onPress={() => playReminderAudio(r.audio_path!)}
                         style={styles.playButton}
                       >
                         <Ionicons name="play-circle" size={28} color="#FF7043" />
                       </TouchableOpacity>
                     )}
                   </View>
-                  <Text style={[styles.reminderText, r.is_triggered && { color: COLORS.textSecondary }]}>{r.text}</Text>
+                  <Text style={[styles.reminderText, r.is_triggered_today && { color: COLORS.textSecondary }]}>{r.text}</Text>
                 </View>
               ))}
             </View>
@@ -524,6 +543,21 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
     color: "#FF7043",
+  },
+  recurrenceBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    backgroundColor: COLORS.primary + "20",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    marginLeft: 8,
+  },
+  recurrenceBadgeText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: COLORS.primary,
   },
   triggeredBadge: {
     backgroundColor: COLORS.primary + "20",

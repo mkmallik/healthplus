@@ -83,7 +83,7 @@ export default function HomePage() {
       {isToday && streaks && streaks.overall.current_streak > 0 && (
         <Link
           href="/insights"
-          className="mb-4 flex items-center gap-2 rounded-lg bg-orange-50 px-4 py-2.5 transition-colors hover:bg-orange-100"
+          className="mb-4 flex items-center gap-2 rounded-lg bg-orange-950 px-4 py-2.5 transition-colors hover:bg-orange-900"
         >
           <span className="text-lg">🔥</span>
           <span className="text-sm font-semibold" style={{ color: COLORS.streak }}>
@@ -97,7 +97,7 @@ export default function HomePage() {
       {!loading && data && (
         <>
           {!goal && (
-            <div className="mb-4 rounded-lg border-l-4 border-accent bg-orange-50 p-4">
+            <div className="mb-4 rounded-lg border-l-4 border-accent bg-orange-950 p-4">
               <p className="text-sm text-text">
                 Set your{" "}
                 <Link href="/goals" className="font-medium text-primary underline">

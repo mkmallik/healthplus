@@ -72,7 +72,7 @@ export default function AudioRecorder({ onRecorded }: AudioRecorderProps) {
         <button
           type="button"
           onClick={startRecording}
-          className="flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-2 transition-colors"
         >
           <Mic className="h-4 w-4" />
           Record Voice Note

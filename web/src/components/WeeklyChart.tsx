@@ -37,7 +37,7 @@ export default function WeeklyChart({ days, goal }: WeeklyChartProps) {
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: -10 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E8E8E8" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
           <XAxis
             dataKey="name"
             tick={{ fontSize: 12, fill: COLORS.textSecondary }}
@@ -53,7 +53,8 @@ export default function WeeklyChart({ days, goal }: WeeklyChartProps) {
             contentStyle={{
               borderRadius: 8,
               border: "none",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+              background: "#1a1a1a",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
             }}
             formatter={(value) => [`${value} kcal`, "Calories"]}
           />

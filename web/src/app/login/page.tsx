@@ -45,7 +45,7 @@ export default function LoginPage() {
           className="rounded-xl bg-surface p-6 shadow-md"
         >
           {error && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-center text-sm text-error">
+            <div className="mb-4 rounded-lg bg-red-950 p-3 text-center text-sm text-error">
               {error}
             </div>
           )}
@@ -58,7 +58,7 @@ export default function LoginPage() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full rounded-lg border border-border bg-white px-4 py-2.5 text-text outline-none transition-colors focus:border-primary"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-text outline-none transition-colors focus:border-primary"
               placeholder="Enter username"
               required
             />
@@ -72,7 +72,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-border bg-white px-4 py-2.5 text-text outline-none transition-colors focus:border-primary"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-text outline-none transition-colors focus:border-primary"
               placeholder="Enter password"
               required
             />

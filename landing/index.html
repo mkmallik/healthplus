@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthPlus — Your AI-Powered Health Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --green: #22c55e;
+  --green-dark: #16a34a;
+  --green-light: #bbf7d0;
+  --purple: #8b5cf6;
+  --orange: #f97316;
+  --pink: #ec4899;
+  --blue: #3b82f6;
+  --cyan: #06b6d4;
+  --red: #ef4444;
+  --yellow: #eab308;
+  --bg: #0a0a0a;
+  --bg-card: #141414;
+  --bg-card2: #1a1a1a;
+  --text: #ffffff;
+  --text-dim: #a1a1aa;
+  --text-muted: #71717a;
+  --border: #27272a;
+  --gradient-1: linear-gradient(135deg, #22c55e 0%, #06b6d4 100%);
+  --gradient-2: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  --gradient-3: linear-gradient(135deg, #f97316 0%, #eab308 100%);
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+
+/* Nav */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 1rem 2rem;
+  background: rgba(10,10,10,0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-weight: 800; font-size: 1.25rem;
+}
+.nav-logo .icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--gradient-1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+.nav-links { display: flex; gap: 2rem; align-items: center; }
+.nav-links a { color: var(--text-dim); font-size: 0.875rem; font-weight: 500; transition: color 0.2s; }
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  padding: 0.5rem 1.25rem; border-radius: 8px;
+  background: var(--green); color: #000;
+  font-weight: 600; font-size: 0.875rem;
+  transition: background 0.2s;
+}
+.nav-cta:hover { background: var(--green-dark); }
+
+/* Hero */
+.hero {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 8rem 2rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(ellipse at 50% 0%, rgba(34,197,94,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 20% 50%, rgba(139,92,246,0.05) 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+.hero-content { max-width: 900px; position: relative; z-index: 1; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.375rem 1rem; border-radius: 999px;
+  background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2);
+  font-size: 0.8rem; color: var(--green); font-weight: 500;
+  margin-bottom: 2rem;
+}
+.hero h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 900; line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.03em;
+}
+.hero h1 .gradient { background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero p {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--text-dim);
+  max-width: 600px; margin: 0 auto 2.5rem;
+  line-height: 1.7;
+}
+.hero-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.btn-primary {
+  padding: 0.875rem 2rem; border-radius: 12px;
+  background: var(--green); color: #000;
+  font-weight: 700; font-size: 1rem;
+  transition: all 0.2s; border: none; cursor: pointer;
+}
+.btn-primary:hover { background: var(--green-dark); transform: translateY(-1px); }
+.btn-secondary {
+  padding: 0.875rem 2rem; border-radius: 12px;
+  background: var(--bg-card2); color: var(--text);
+  font-weight: 600; font-size: 1rem; border: 1px solid var(--border);
+  transition: all 0.2s; cursor: pointer;
+}
+.btn-secondary:hover { background: var(--bg-card); border-color: var(--text-muted); }
+
+/* Phone mockup */
+.phone-row {
+  display: flex; justify-content: center; gap: 2rem; margin-top: 4rem;
+  flex-wrap: wrap;
+}
+.phone {
+  width: 280px; height: 560px;
+  background: var(--bg-card);
+  border-radius: 36px;
+  border: 3px solid #333;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+  flex-shrink: 0;
+}
+.phone-notch {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 28px;
+  background: #000; border-radius: 0 0 16px 16px; z-index: 10;
+}
+.phone-screen { padding: 36px 16px 16px; height: 100%; overflow: hidden; }
+.phone-status {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.65rem; color: var(--text-dim); margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+/* Screen content components */
+.s-header { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+.s-subheader { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 12px; }
+.s-card {
+  background: var(--bg-card2); border-radius: 12px; padding: 12px;
+  margin-bottom: 8px; border: 1px solid var(--border);
+}
+.s-row { display: flex; align-items: center; gap: 8px; }
+.s-row-between { display: flex; justify-content: space-between; align-items: center; }
+.s-pill {
+  padding: 3px 8px; border-radius: 6px; font-size: 0.55rem; font-weight: 600;
+}
+.s-ring-container { display: flex; justify-content: center; margin-bottom: 12px; }
+.s-ring {
+  width: 100px; height: 100px; border-radius: 50%;
+  border: 6px solid var(--border); position: relative;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+}
+.s-ring.active { border-color: var(--green); border-top-color: var(--border); }
+.s-ring-value { font-size: 1.2rem; font-weight: 800; }
+.s-ring-label { font-size: 0.5rem; color: var(--text-dim); }
+.s-macro-row { display: flex; justify-content: space-around; margin-bottom: 12px; }
+.s-macro { text-align: center; }
+.s-macro-val { font-size: 0.75rem; font-weight: 700; }
+.s-macro-lbl { font-size: 0.5rem; color: var(--text-dim); }
+.s-meal-item {
+  display: flex; align-items: center; gap: 8px; padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.s-meal-item:last-child { border-bottom: none; }
+.s-meal-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+}
+.s-meal-name { font-size: 0.65rem; font-weight: 500; }
+.s-meal-cal { font-size: 0.6rem; color: var(--text-dim); margin-left: auto; }
+.s-activity-row { display: flex; gap: 6px; margin-bottom: 10px; }
+.s-activity-card {
+  flex: 1; background: var(--bg-card2); border-radius: 8px; padding: 8px;
+  text-align: center; border: 1px solid var(--border);
+}
+.s-activity-icon { font-size: 1rem; margin-bottom: 2px; }
+.s-activity-val { font-size: 0.7rem; font-weight: 700; }
+.s-activity-lbl { font-size: 0.45rem; color: var(--text-dim); }
+.s-tab-bar {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 52px; background: #111; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-around; align-items: center;
+  padding: 0 8px;
+}
+.s-tab { text-align: center; }
+.s-tab-icon { font-size: 0.9rem; }
+.s-tab-label { font-size: 0.4rem; color: var(--text-muted); margin-top: 1px; }
+.s-tab.active .s-tab-label { color: var(--green); }
+
+/* Habit screen components */
+.s-habit-item {
+  display: flex; align-items: center; gap: 8px; padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.s-habit-item:last-child { border-bottom: none; }
+.s-habit-check {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--border); display: flex;
+  align-items: center; justify-content: center; font-size: 0.6rem; flex-shrink: 0;
+}
+.s-habit-check.done { background: var(--green); border-color: var(--green); }
+.s-habit-name { font-size: 0.65rem; font-weight: 500; }
+.s-habit-streak { font-size: 0.55rem; color: var(--orange); margin-left: auto; }
+.s-progress-bar {
+  height: 6px; background: var(--border); border-radius: 3px;
+  overflow: hidden; margin-bottom: 10px;
+}
+.s-progress-fill { height: 100%; border-radius: 3px; }
+
+/* Todo screen components */
+.s-todo-item {
+  display: flex; align-items: center; gap: 8px; padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.s-todo-item:last-child { border-bottom: none; }
+.s-todo-check {
+  width: 18px; height: 18px; border-radius: 4px;
+  border: 2px solid var(--border); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 0.5rem;
+}
+.s-todo-check.done { background: var(--green); border-color: var(--green); }
+.s-todo-text { font-size: 0.6rem; }
+.s-todo-text.done-text { text-decoration: line-through; color: var(--text-muted); }
+.s-todo-badge {
+  font-size: 0.45rem; padding: 1px 5px; border-radius: 4px;
+  background: rgba(249,115,22,0.15); color: var(--orange); margin-left: auto;
+}
+.s-input-bar {
+  display: flex; gap: 6px; margin-top: 8px;
+}
+.s-input {
+  flex: 1; height: 30px; background: var(--bg-card2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0 8px; font-size: 0.55rem; color: var(--text-dim);
+  display: flex; align-items: center;
+}
+.s-input-btn {
+  height: 30px; width: 30px; background: var(--green); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #000;
+}
+
+/* Chart mockup */
+.s-chart { display: flex; align-items: flex-end; gap: 4px; height: 60px; margin: 8px 0; }
+.s-bar {
+  flex: 1; border-radius: 3px 3px 0 0; min-height: 4px;
+}
+.s-chart-labels { display: flex; justify-content: space-between; }
+.s-chart-label { font-size: 0.4rem; color: var(--text-muted); }
+
+/* Sections */
+.section {
+  padding: 6rem 2rem;
+  position: relative;
+}
+.section-inner {
+  max-width: 1200px; margin: 0 auto;
+}
+.section-label {
+  font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.1em; margin-bottom: 1rem;
+}
+.section-title {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800; line-height: 1.2;
+  margin-bottom: 1rem; letter-spacing: -0.02em;
+}
+.section-desc {
+  font-size: 1.05rem; color: var(--text-dim);
+  max-width: 600px; line-height: 1.7;
+  margin-bottom: 3rem;
+}
+
+/* Feature grid */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.3s;
+}
+.feature-card:hover {
+  border-color: var(--text-muted);
+  transform: translateY(-2px);
+}
+.feature-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; margin-bottom: 1.25rem;
+}
+.feature-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.feature-card p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+
+/* Split sections */
+.split {
+  display: flex; align-items: center; gap: 4rem;
+}
+.split-reverse { flex-direction: row-reverse; }
+.split-text { flex: 1; }
+.split-visual { flex: 1; display: flex; justify-content: center; }
+
+/* Capability list */
+.cap-list { list-style: none; margin-top: 1.5rem; }
+.cap-list li {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.75rem 0;
+  font-size: 0.95rem; color: var(--text-dim);
+}
+.cap-list li .check {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(34,197,94,0.15); color: var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; flex-shrink: 0; margin-top: 2px;
+}
+
+/* Stats banner */
+.stats-banner {
+  display: flex; justify-content: center; gap: 4rem; flex-wrap: wrap;
+  padding: 3rem 2rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 0 auto; max-width: 900px;
+}
+.stat-item { text-align: center; }
+.stat-value {
+  font-size: 2.5rem; font-weight: 900;
+  background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.stat-label { font-size: 0.85rem; color: var(--text-dim); margin-top: 0.25rem; }
+
+/* Voice section */
+.voice-visual {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.voice-circle {
+  width: 180px; height: 180px; border-radius: 50%;
+  background: var(--gradient-2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 4rem;
+  box-shadow: 0 0 60px rgba(139,92,246,0.3);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 60px rgba(139,92,246,0.3); transform: scale(1); }
+  50% { box-shadow: 0 0 80px rgba(139,92,246,0.5); transform: scale(1.03); }
+}
+.voice-examples {
+  position: absolute;
+  font-size: 0.75rem; color: var(--text-dim);
+  background: var(--bg-card); padding: 0.5rem 1rem; border-radius: 8px;
+  border: 1px solid var(--border); white-space: nowrap;
+}
+.voice-ex-1 { top: 10px; right: -20px; }
+.voice-ex-2 { bottom: 20px; left: -30px; }
+.voice-ex-3 { top: 50%; right: -60px; }
+
+/* CTA section */
+.cta-section {
+  text-align: center;
+  padding: 8rem 2rem;
+  position: relative;
+}
+.cta-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(34,197,94,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-section h2 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 900; margin-bottom: 1rem; letter-spacing: -0.03em;
+  position: relative;
+}
+.cta-section p {
+  font-size: 1.1rem; color: var(--text-dim); margin-bottom: 2.5rem;
+  max-width: 500px; margin-left: auto; margin-right: auto; position: relative;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.footer-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1rem; }
+.footer-links a { color: var(--text-dim); transition: color 0.2s; }
+.footer-links a:hover { color: var(--text); }
+
+/* Accent borders for cards */
+.accent-left {
+  border-left: 3px solid;
+  padding-left: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .split, .split-reverse { flex-direction: column; }
+  .phone-row { gap: 1.5rem; }
+  .phone { width: 240px; height: 480px; }
+  .stats-banner { gap: 2rem; }
+  .voice-examples { display: none; }
+  .feature-grid { grid-template-columns: 1fr; }
+}
+
+/* Scroll animations */
+.fade-up {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+/* Color helpers */
+.c-green { color: var(--green); }
+.c-purple { color: var(--purple); }
+.c-orange { color: var(--orange); }
+.c-pink { color: var(--pink); }
+.c-blue { color: var(--blue); }
+.c-cyan { color: var(--cyan); }
+.c-red { color: var(--red); }
+.c-yellow { color: var(--yellow); }
+.bg-green { background: rgba(34,197,94,0.12); }
+.bg-purple { background: rgba(139,92,246,0.12); }
+.bg-orange { background: rgba(249,115,22,0.12); }
+.bg-pink { background: rgba(236,72,153,0.12); }
+.bg-blue { background: rgba(59,130,246,0.12); }
+.bg-cyan { background: rgba(6,182,212,0.12); }
+
+/* Notes screen */
+.s-note-card {
+  background: var(--bg-card2); border-radius: 10px; padding: 10px;
+  margin-bottom: 6px; border: 1px solid var(--border);
+}
+.s-note-title { font-size: 0.65rem; font-weight: 600; margin-bottom: 2px; }
+.s-note-preview { font-size: 0.5rem; color: var(--text-dim); line-height: 1.4; }
+.s-note-date { font-size: 0.4rem; color: var(--text-muted); margin-top: 4px; }
+
+/* Reminder */
+.s-reminder {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+  background: rgba(139,92,246,0.08); border-radius: 8px; margin-bottom: 6px;
+  border: 1px solid rgba(139,92,246,0.15);
+}
+.s-reminder-time {
+  font-size: 0.6rem; font-weight: 700; color: var(--purple);
+  background: rgba(139,92,246,0.15); padding: 2px 6px; border-radius: 4px;
+}
+.s-reminder-text { font-size: 0.55rem; flex: 1; }
+.s-reminder-play {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--purple);
+  display: flex; align-items: center; justify-content: center; font-size: 0.5rem;
+}
+
+/* Streak */
+.s-streak-banner {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(249,115,22,0.1); border-radius: 8px;
+  padding: 6px 10px; margin-bottom: 10px;
+  border: 1px solid rgba(249,115,22,0.15);
+}
+.s-streak-fire { font-size: 0.9rem; }
+.s-streak-text { font-size: 0.6rem; font-weight: 600; color: var(--orange); }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="icon">+</div>
+    HealthPlus
+  </div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#food">Food</a>
+    <a href="#voice">Voice AI</a>
+    <a href="#habits">Habits</a>
+    <a href="#todo">Todo</a>
+    <a href="#notes">Notes</a>
+    <a href="#reminders">Reminders</a>
+    <a href="#insights">Insights</a>
+    <a href="/login" class="nav-cta">Open App</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content fade-up">
+    <div class="hero-badge">Powered by GPT-4o Vision & Voice</div>
+    <h1>Track your health<br><span class="gradient">effortlessly with AI</span></h1>
+    <p>Snap a photo, speak, or type. HealthPlus uses AI to log food, exercise, steps, body metrics, habits, and more — all from a single voice command.</p>
+    <div class="hero-buttons">
+      <a href="/login" class="btn-primary">Get Started Free</a>
+      <a href="#features" class="btn-secondary">See Features</a>
+    </div>
+
+    <!-- Phone mockups -->
+    <div class="phone-row">
+      <!-- Home Screen -->
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-status">
+            <span>9:41</span>
+            <span>100%</span>
+          </div>
+
+          <!-- Date Navigator -->
+          <div class="s-row-between" style="margin-bottom: 10px;">
+            <span style="font-size: 0.7rem; color: var(--text-muted);">&#8249;</span>
+            <span style="font-size: 0.7rem; font-weight: 600;">Today</span>
+            <span style="font-size: 0.7rem; color: var(--text-muted);">&#8250;</span>
+          </div>
+
+          <!-- Streak -->
+          <div class="s-streak-banner">
+            <span class="s-streak-fire">&#128293;</span>
+            <span class="s-streak-text">12 day streak!</span>
+          </div>
+
+          <!-- Calorie Ring -->
+          <div class="s-ring-container">
+            <div class="s-ring active">
+              <span class="s-ring-value">1,420</span>
+              <span class="s-ring-label">of 2,000 kcal</span>
+            </div>
+          </div>
+
+          <!-- Macros -->
+          <div class="s-macro-row">
+            <div class="s-macro">
+              <div class="s-macro-val c-blue">62g</div>
+              <div class="s-macro-lbl">Protein</div>
+            </div>
+            <div class="s-macro">
+              <div class="s-macro-val c-orange">185g</div>
+              <div class="s-macro-lbl">Carbs</div>
+            </div>
+            <div class="s-macro">
+              <div class="s-macro-val c-pink">48g</div>
+              <div class="s-macro-lbl">Fat</div>
+            </div>
+            <div class="s-macro">
+              <div class="s-macro-val c-red">1.8g</div>
+              <div class="s-macro-lbl">Sodium</div>
+            </div>
+          </div>
+
+          <!-- Activity cards -->
+          <div class="s-activity-row">
+            <div class="s-activity-card">
+              <div class="s-activity-icon">&#127939;</div>
+              <div class="s-activity-val c-green">45 min</div>
+              <div class="s-activity-lbl">Exercise</div>
+            </div>
+            <div class="s-activity-card">
+              <div class="s-activity-icon">&#128099;</div>
+              <div class="s-activity-val c-cyan">8,432</div>
+              <div class="s-activity-lbl">Steps</div>
+            </div>
+            <div class="s-activity-card">
+              <div class="s-activity-icon">&#9878;</div>
+              <div class="s-activity-val c-purple">72.5 kg</div>
+              <div class="s-activity-lbl">Weight</div>
+            </div>
+          </div>
+
+          <!-- Meal -->
+          <div class="s-card">
+            <div class="s-row-between" style="margin-bottom: 6px;">
+              <span style="font-size: 0.65rem; font-weight: 600;">Breakfast</span>
+              <span style="font-size: 0.55rem; color: var(--text-dim);">520 kcal</span>
+            </div>
+            <div class="s-meal-item">
+              <div class="s-meal-icon" style="background: rgba(249,115,22,0.12);">&#127835;</div>
+              <span class="s-meal-name">Masala Dosa</span>
+              <span class="s-meal-cal">320 kcal</span>
+            </div>
+            <div class="s-meal-item">
+              <div class="s-meal-icon" style="background: rgba(59,130,246,0.12);">&#9749;</div>
+              <span class="s-meal-name">Filter Coffee</span>
+              <span class="s-meal-cal">80 kcal</span>
+            </div>
+          </div>
+
+          <!-- Tab bar -->
+          <div class="s-tab-bar">
+            <div class="s-tab active"><div class="s-tab-icon">&#9728;</div><div class="s-tab-label">Today</div></div>
+            <div class="s-tab"><div class="s-tab-icon">&#8634;</div><div class="s-tab-label">Habits</div></div>
+            <div class="s-tab"><div class="s-tab-icon">&#9745;</div><div class="s-tab-label">Todo</div></div>
+            <div class="s-tab"><div class="s-tab-icon">&#128214;</div><div class="s-tab-label">Logs</div></div>
+            <div class="s-tab"><div class="s-tab-icon">&#9998;</div><div class="s-tab-label">Notes</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Habits Screen -->
+      <div class="phone" style="margin-top: 3rem;">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-status">
+            <span>9:41</span>
+            <span>100%</span>
+          </div>
+          <div class="s-header">Habits</div>
+
+          <!-- Progress -->
+          <div class="s-card" style="text-align: center;">
+            <div style="font-size: 1.5rem; font-weight: 800; color: var(--green);">5/7</div>
+            <div style="font-size: 0.55rem; color: var(--text-dim); margin-bottom: 6px;">completed today</div>
+            <div class="s-progress-bar">
+              <div class="s-progress-fill" style="width: 71%; background: var(--gradient-1);"></div>
+            </div>
+          </div>
+
+          <div class="s-card">
+            <div class="s-habit-item">
+              <div class="s-habit-check done">&#10003;</div>
+              <span class="s-habit-name">Log Food</span>
+              <span class="s-habit-streak">&#128293; 12</span>
+            </div>
+            <div class="s-habit-item">
+              <div class="s-habit-check done">&#10003;</div>
+              <span class="s-habit-name">Exercise</span>
+              <span class="s-habit-streak">&#128293; 8</span>
+            </div>
+            <div class="s-habit-item">
+              <div class="s-habit-check done">&#10003;</div>
+              <span class="s-habit-name">Log Weight</span>
+              <span class="s-habit-streak">&#128293; 15</span>
+            </div>
+            <div class="s-habit-item">
+              <div class="s-habit-check done">&#10003;</div>
+              <span class="s-habit-name">Drink 3L Water</span>
+              <span class="s-habit-streak">&#128293; 5</span>
+            </div>
+            <div class="s-habit-item">
+              <div class="s-habit-check done">&#10003;</div>
+              <span class="s-habit-name">Log Steps</span>
+              <span class="s-habit-streak">&#128293; 10</span>
+            </div>
+            <div class="s-habit-item">
+              <div class="s-habit-check"></div>
+              <span class="s-habit-name">Meditate</span>
+              <span class="s-habit-streak" style="color: var(--text-muted);">&#128293; 0</span>
+            </div>
+            <div class="s-habit-item">
+              <div class="s-habit-check"></div>
+              <span class="s-habit-name">Read 20 pages</span>
+              <span class="s-habit-streak" style="color: var(--text-muted);">&#128293; 3</span>
+            </div>
+          </div>
+
+          <div style="font-size: 0.7rem; font-weight: 600; margin: 10px 0 6px;">Streaks</div>
+          <div class="s-activity-row">
+            <div class="s-activity-card">
+              <div class="s-activity-val c-orange">15</div>
+              <div class="s-activity-lbl">Best</div>
+            </div>
+            <div class="s-activity-card">
+              <div class="s-activity-val c-green">12</div>
+              <div class="s-activity-lbl">Current</div>
+            </div>
+            <div class="s-activity-card">
+              <div class="s-activity-val c-blue">85%</div>
+              <div class="s-activity-lbl">Rate</div>
+            </div>
+          </div>
+
+          <div class="s-tab-bar">
+            <div class="s-tab"><div class="s-tab-icon">&#9728;</div><div class="s-tab-label">Today</div></div>
+            <div class="s-tab active"><div class="s-tab-icon">&#8634;</div><div class="s-tab-label">Habits</div></div>
+            <div class="s-tab"><div class="s-tab-icon">&#9745;</div><div class="s-tab-label">Todo</div></div>
+            <div class="s-tab"><div class="s-tab-icon">&#128214;</div><div class="s-tab-label">Logs</div></div>
+            <div class="s-tab"><div class="s-tab-icon">&#9998;</div><div class="s-tab-label">Notes</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insights Screen -->
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-status">
+            <span>9:41</span>
+            <span>100%</span>
+          </div>
+          <div class="s-header">Insights</div>
+          <div class="s-subheader">Weekly Overview</div>
+
+          <!-- Streaks row -->
+          <div class="s-activity-row">
+            <div class="s-activity-card">
+              <div class="s-activity-icon">&#128293;</div>
+              <div class="s-activity-val c-orange">12</div>
+              <div class="s-activity-lbl">Day Streak</div>
+            </div>
+            <div class="s-activity-card">
+              <div class="s-activity-icon">&#127942;</div>
+              <div class="s-activity-val c-yellow">15</div>
+              <div class="s-activity-lbl">Best Streak</div>
+            </div>
+          </div>
+
+          <!-- Calories chart -->
+          <div class="s-card">
+            <div class="s-row-between" style="margin-bottom: 6px;">
+              <span style="font-size: 0.6rem; font-weight: 600;">Calories</span>
+              <span style="font-size: 0.5rem; color: var(--green);">avg 1,680</span>
+            </div>
+            <div class="s-chart">
+              <div class="s-bar" style="height: 70%; background: var(--green);"></div>
+              <div class="s-bar" style="height: 85%; background: var(--green);"></div>
+              <div class="s-bar" style="height: 60%; background: var(--green);"></div>
+              <div class="s-bar" style="height: 90%; background: var(--green);"></div>
+              <div class="s-bar" style="height: 75%; background: var(--green);"></div>
+              <div class="s-bar" style="height: 55%; background: var(--green);"></div>
+              <div class="s-bar" style="height: 80%; background: var(--green);"></div>
+            </div>
+            <div class="s-chart-labels">
+              <span class="s-chart-label">Mon</span>
+              <span class="s-chart-label">Tue</span>
+              <span class="s-chart-label">Wed</span>
+              <span class="s-chart-label">Thu</span>
+              <span class="s-chart-label">Fri</span>
+              <span class="s-chart-label">Sat</span>
+              <span class="s-chart-label">Sun</span>
+            </div>
+          </div>
+
+          <!-- Steps chart -->
+          <div class="s-card">
+            <div class="s-row-between" style="margin-bottom: 6px;">
+              <span style="font-size: 0.6rem; font-weight: 600;">Steps</span>
+              <span style="font-size: 0.5rem; color: var(--cyan);">avg 7,850</span>
+            </div>
+            <div class="s-chart">
+              <div class="s-bar" style="height: 80%; background: var(--cyan);"></div>
+              <div class="s-bar" style="height: 95%; background: var(--cyan);"></div>
+              <div class="s-bar" style="height: 50%; background: var(--cyan);"></div>
+              <div class="s-bar" style="height: 70%; background: var(--cyan);"></div>
+              <div class="s-bar" style="height: 100%; background: var(--cyan);"></div>
+              <div class="s-bar" style="height: 65%; background: var(--cyan);"></div>
+              <div class="s-bar" style="height: 45%; background: var(--cyan);"></div>
+            </div>
+            <div class="s-chart-labels">
+              <span class="s-chart-label">Mon</span>
+              <span class="s-chart-label">Tue</span>
+              <span class="s-chart-label">Wed</span>
+              <span class="s-chart-label">Thu</span>
+              <span class="s-chart-label">Fri</span>
+              <span class="s-chart-label">Sat</span>
+              <span class="s-chart-label">Sun</span>
+            </div>
+          </div>
+
+          <!-- Weight trend -->
+          <div class="s-card">
+            <div class="s-row-between" style="margin-bottom: 4px;">
+              <span style="font-size: 0.6rem; font-weight: 600;">Weight</span>
+              <span style="font-size: 0.5rem; color: var(--purple);">-1.2 kg</span>
+            </div>
+            <div style="font-size: 0.5rem; color: var(--text-dim);">73.5 &#8594; 72.3 kg this week</div>
+          </div>
+
+          <div class="s-tab-bar">
+            <div class="s-tab"><div class="s-tab-icon">&#9728;</div><div class="s-tab-label">Today</div></div>
+            <div class="s-tab"><div class="s-tab-icon">&#8634;</div><div class="s-tab-label">Habits</div></div>
+            <div class="s-tab"><div class="s-tab-icon">&#9745;</div><div class="s-tab-label">Todo</div></div>
+            <div class="s-tab"><div class="s-tab-icon">&#128214;</div><div class="s-tab-label">Logs</div></div>
+            <div class="s-tab"><div class="s-tab-icon">&#9998;</div><div class="s-tab-label">Notes</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Banner -->
+<div class="stats-banner fade-up">
+  <div class="stat-item">
+    <div class="stat-value">6+</div>
+    <div class="stat-label">Input Methods</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">30+</div>
+    <div class="stat-label">API Endpoints</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">5</div>
+    <div class="stat-label">Tracking Categories</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">AI</div>
+    <div class="stat-label">Powered Analysis</div>
+  </div>
+</div>
+
+<!-- Features Overview -->
+<section class="section" id="features">
+  <div class="section-inner fade-up">
+    <div class="section-label c-green">Features</div>
+    <div class="section-title">Everything you need to<br>track your health</div>
+    <div class="section-desc">From food to fitness, habits to reminders — HealthPlus covers every aspect of your daily health journey.</div>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(34,197,94,0.12);">&#127860;</div>
+        <h3>AI Food Logging</h3>
+        <p>Snap a photo, speak, or type your meals. GPT-4o Vision identifies foods and estimates calories, macros, and portions — with Indian cuisine expertise.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(139,92,246,0.12);">&#127908;</div>
+        <h3>Universal Voice</h3>
+        <p>One voice command does it all. Say "I had 2 rotis and dal" or "Ran 5k this morning" — AI classifies and routes to the right tracker automatically.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(6,182,212,0.12);">&#127939;</div>
+        <h3>Exercise Tracking</h3>
+        <p>Log workouts via voice or text. MET-based calorie estimation, intensity detection, muscle group identification, and smart exercise summaries.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(59,130,246,0.12);">&#128099;</div>
+        <h3>Step Tracking</h3>
+        <p>Enter steps manually or snap your watch screen — GPT-4o Vision reads the count. Steps over 8,000 auto-create a walking exercise entry.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(236,72,153,0.12);">&#9878;</div>
+        <h3>Body Metrics</h3>
+        <p>Track weight, waist, and biceps over time. Natural language input — just say "75.2 kg today" and the AI extracts the measurement.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(249,115,22,0.12);">&#128293;</div>
+        <h3>Habits & Streaks</h3>
+        <p>Three habit types: boolean check-ins, descriptive logs with photos, and todo lists. Automatic streaks, daily progress, and carry-over tasks.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(234,179,8,0.12);">&#128200;</div>
+        <h3>Insights & Trends</h3>
+        <p>Weekly and monthly dashboards with bar charts, calorie trends, step trends, weight progress, burned calorie breakdown (BMR + exercise + steps).</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(239,68,68,0.12);">&#128276;</div>
+        <h3>Smart Reminders</h3>
+        <p>Set reminders by voice — "remind me at 5pm to drink water". Auto-generates spoken TTS audio that plays at the scheduled time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: rgba(34,197,94,0.12);">&#128221;</div>
+        <h3>Daily Notes</h3>
+        <p>Journal your day with text, voice recordings, and photos. Search across notes, browse by date range with multi-day views.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Food Tracking Deep Dive -->
+<section class="section" id="food" style="border-top: 1px solid var(--border);">
+  <div class="section-inner">
+    <div class="split fade-up">
+      <div class="split-text">
+        <div class="section-label c-orange">Food Logging</div>
+        <div class="section-title">6 ways to log<br>your meals</div>
+        <div class="section-desc">However you prefer to track — we've got you covered. Each method uses AI to break down individual items with accurate calorie estimates.</div>
+        <ul class="cap-list">
+          <li><span class="check">&#10003;</span> <strong>Camera</strong> — Snap a photo, GPT-4o Vision identifies every item on your plate</li>
+          <li><span class="check">&#10003;</span> <strong>Voice</strong> — Speak naturally: "I had paneer butter masala with 2 naan"</li>
+          <li><span class="check">&#10003;</span> <strong>Text</strong> — Type a quick description of what you ate</li>
+          <li><span class="check">&#10003;</span> <strong>Re-log</strong> — Quickly re-log recent meals with one tap</li>
+          <li><span class="check">&#10003;</span> <strong>Saved Meals</strong> — Save combos you eat often for instant logging</li>
+          <li><span class="check">&#10003;</span> <strong>USDA Search</strong> — Look up exact nutritional data from the USDA database</li>
+        </ul>
+      </div>
+      <div class="split-visual">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>100%</span></div>
+            <div class="s-header">Log Food</div>
+            <div class="s-subheader">Choose how to log your meal</div>
+
+            <div class="s-card" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <div class="s-meal-icon" style="background: rgba(34,197,94,0.12); font-size: 1rem;">&#128247;</div>
+              <div>
+                <div style="font-size: 0.65rem; font-weight: 600;">Take Photo</div>
+                <div style="font-size: 0.5rem; color: var(--text-dim);">AI identifies food from image</div>
+              </div>
+            </div>
+            <div class="s-card" style="display: flex; align-items: center; gap: 10px;">
+              <div class="s-meal-icon" style="background: rgba(139,92,246,0.12); font-size: 1rem;">&#127908;</div>
+              <div>
+                <div style="font-size: 0.65rem; font-weight: 600;">Voice Log</div>
+                <div style="font-size: 0.5rem; color: var(--text-dim);">Describe your meal by speaking</div>
+              </div>
+            </div>
+            <div class="s-card" style="display: flex; align-items: center; gap: 10px;">
+              <div class="s-meal-icon" style="background: rgba(59,130,246,0.12); font-size: 1rem;">&#9997;</div>
+              <div>
+                <div style="font-size: 0.65rem; font-weight: 600;">Type It</div>
+                <div style="font-size: 0.5rem; color: var(--text-dim);">Type what you ate</div>
+              </div>
+            </div>
+            <div class="s-card" style="display: flex; align-items: center; gap: 10px;">
+              <div class="s-meal-icon" style="background: rgba(249,115,22,0.12); font-size: 1rem;">&#128259;</div>
+              <div>
+                <div style="font-size: 0.65rem; font-weight: 600;">Recent Meals</div>
+                <div style="font-size: 0.5rem; color: var(--text-dim);">Re-log something you had before</div>
+              </div>
+            </div>
+            <div class="s-card" style="display: flex; align-items: center; gap: 10px;">
+              <div class="s-meal-icon" style="background: rgba(236,72,153,0.12); font-size: 1rem;">&#11088;</div>
+              <div>
+                <div style="font-size: 0.65rem; font-weight: 600;">Saved Meals</div>
+                <div style="font-size: 0.5rem; color: var(--text-dim);">Your favorite meal combos</div>
+              </div>
+            </div>
+            <div class="s-card" style="display: flex; align-items: center; gap: 10px;">
+              <div class="s-meal-icon" style="background: rgba(6,182,212,0.12); font-size: 1rem;">&#128269;</div>
+              <div>
+                <div style="font-size: 0.65rem; font-weight: 600;">USDA Search</div>
+                <div style="font-size: 0.5rem; color: var(--text-dim);">Search food database</div>
+              </div>
+            </div>
+
+            <div class="s-tab-bar">
+              <div class="s-tab active"><div class="s-tab-icon">&#9728;</div><div class="s-tab-label">Today</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#8634;</div><div class="s-tab-label">Habits</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#9745;</div><div class="s-tab-label">Todo</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#128214;</div><div class="s-tab-label">Logs</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#9998;</div><div class="s-tab-label">Notes</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Universal Voice -->
+<section class="section" id="voice" style="border-top: 1px solid var(--border);">
+  <div class="section-inner">
+    <div class="split split-reverse fade-up">
+      <div class="split-text">
+        <div class="section-label c-purple">Universal Voice</div>
+        <div class="section-title">Just speak.<br>AI handles the rest.</div>
+        <div class="section-desc">One button, any health action. The AI transcribes your speech, classifies the intent, and routes it to the right tracker — food, exercise, steps, habits, reminders, or notes.</div>
+        <ul class="cap-list">
+          <li><span class="check">&#10003;</span> <strong>"I had 2 idli and sambar for breakfast"</strong> — logs food with calories</li>
+          <li><span class="check">&#10003;</span> <strong>"Ran 3 kilometers in 20 minutes"</strong> — logs exercise with MET calories</li>
+          <li><span class="check">&#10003;</span> <strong>"12,000 steps today"</strong> — updates daily step count</li>
+          <li><span class="check">&#10003;</span> <strong>"Weight is 72.5 kg"</strong> — logs body metric</li>
+          <li><span class="check">&#10003;</span> <strong>"Remind me at 5pm to drink water"</strong> — creates TTS reminder</li>
+          <li><span class="check">&#10003;</span> <strong>"Add buy groceries to my todo"</strong> — adds todo item</li>
+        </ul>
+      </div>
+      <div class="split-visual">
+        <div class="voice-visual">
+          <div class="voice-circle">&#127908;</div>
+          <div class="voice-examples voice-ex-1">"I had dosa for breakfast"</div>
+          <div class="voice-examples voice-ex-2">"Remind me at 6pm to walk"</div>
+          <div class="voice-examples voice-ex-3">"Ran 5k today"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Habits & Todos -->
+<section class="section" id="habits" style="border-top: 1px solid var(--border);">
+  <div class="section-inner">
+    <div class="split fade-up">
+      <div class="split-text">
+        <div class="section-label c-orange">Habits & Todos</div>
+        <div class="section-title">Build habits that<br>actually stick</div>
+        <div class="section-desc">Three types of habits to match how you track. Auto-completing habits that detect when you've logged food, exercise, or steps.</div>
+        <ul class="cap-list">
+          <li><span class="check">&#10003;</span> <strong>Boolean</strong> — Simple done/not-done check-ins with streak tracking</li>
+          <li><span class="check">&#10003;</span> <strong>Descriptive</strong> — Log with text, voice, or photos for richer tracking</li>
+          <li><span class="check">&#10003;</span> <strong>Todo Lists</strong> — Checklist items with carry-over for undone tasks</li>
+          <li><span class="check">&#10003;</span> <strong>Auto-complete</strong> — Food/exercise/step habits complete when you log</li>
+          <li><span class="check">&#10003;</span> <strong>Streaks</strong> — Track consecutive days, best streaks, completion rates</li>
+          <li><span class="check">&#10003;</span> <strong>Custom frequency</strong> — Daily, weekly, or monthly habits</li>
+        </ul>
+      </div>
+      <div class="split-visual">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>100%</span></div>
+            <div class="s-header">Todo</div>
+            <div class="s-subheader">Shopping List</div>
+
+            <!-- Progress -->
+            <div class="s-card" style="padding: 10px;">
+              <div class="s-row-between" style="margin-bottom: 4px;">
+                <span style="font-size: 0.55rem; font-weight: 600;">Progress</span>
+                <span style="font-size: 0.55rem; color: var(--green);">3/5</span>
+              </div>
+              <div class="s-progress-bar">
+                <div class="s-progress-fill" style="width: 60%; background: var(--gradient-1);"></div>
+              </div>
+            </div>
+
+            <div class="s-card">
+              <div class="s-todo-item">
+                <div class="s-todo-check done">&#10003;</div>
+                <span class="s-todo-text done-text">Buy vegetables</span>
+              </div>
+              <div class="s-todo-item">
+                <div class="s-todo-check done">&#10003;</div>
+                <span class="s-todo-text done-text">Pick up protein powder</span>
+              </div>
+              <div class="s-todo-item">
+                <div class="s-todo-check done">&#10003;</div>
+                <span class="s-todo-text done-text">Get multivitamins</span>
+              </div>
+              <div class="s-todo-item">
+                <div class="s-todo-check"></div>
+                <span class="s-todo-text">Buy oats and granola</span>
+                <span class="s-todo-badge">carried over</span>
+              </div>
+              <div class="s-todo-item">
+                <div class="s-todo-check"></div>
+                <span class="s-todo-text">Restock green tea</span>
+              </div>
+            </div>
+
+            <div class="s-input-bar">
+              <div class="s-input">Add a new item...</div>
+              <div class="s-input-btn">+</div>
+            </div>
+
+            <!-- Reminders -->
+            <div style="font-size: 0.65rem; font-weight: 600; margin: 12px 0 6px;">Reminders</div>
+            <div class="s-reminder">
+              <span class="s-reminder-time">5:00 PM</span>
+              <span class="s-reminder-text">Drink water</span>
+              <div class="s-reminder-play">&#9654;</div>
+            </div>
+            <div class="s-reminder">
+              <span class="s-reminder-time">8:30 PM</span>
+              <span class="s-reminder-text">Take vitamins</span>
+              <div class="s-reminder-play">&#9654;</div>
+            </div>
+
+            <div class="s-tab-bar">
+              <div class="s-tab"><div class="s-tab-icon">&#9728;</div><div class="s-tab-label">Today</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#8634;</div><div class="s-tab-label">Habits</div></div>
+              <div class="s-tab active"><div class="s-tab-icon">&#9745;</div><div class="s-tab-label">Todo</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#128214;</div><div class="s-tab-label">Logs</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#9998;</div><div class="s-tab-label">Notes</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Exercise & Body Metrics -->
+<section class="section" style="border-top: 1px solid var(--border);">
+  <div class="section-inner">
+    <div class="split split-reverse fade-up">
+      <div class="split-text">
+        <div class="section-label c-cyan">Exercise & Body</div>
+        <div class="section-title">Complete fitness<br>tracking</div>
+        <div class="section-desc">Log exercise, track steps, monitor body metrics — all with AI-powered natural language understanding and smart calorie estimation.</div>
+        <ul class="cap-list">
+          <li><span class="check">&#10003;</span> <strong>MET-based calories</strong> — Accurate burn estimation for 100+ exercise types</li>
+          <li><span class="check">&#10003;</span> <strong>Watch screen scan</strong> — Snap your smartwatch to log steps via GPT-4o Vision</li>
+          <li><span class="check">&#10003;</span> <strong>Auto-exercise</strong> — 8,000+ steps automatically creates a walking exercise entry</li>
+          <li><span class="check">&#10003;</span> <strong>BMR tracking</strong> — Mifflin-St Jeor basal metabolic rate, prorated by time of day</li>
+          <li><span class="check">&#10003;</span> <strong>Net calories</strong> — Food intake minus total burned (BMR + exercise + steps)</li>
+          <li><span class="check">&#10003;</span> <strong>Weight trends</strong> — Track weight, waist, biceps with historical graphs</li>
+        </ul>
+      </div>
+      <div class="split-visual">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>100%</span></div>
+            <div class="s-header">Dashboard</div>
+            <div class="s-subheader">Weekly Summary</div>
+
+            <!-- Calories burned breakdown -->
+            <div class="s-card">
+              <div style="font-size: 0.6rem; font-weight: 600; margin-bottom: 6px;">Calories Burned</div>
+              <div class="s-row-between" style="margin-bottom: 4px;">
+                <span style="font-size: 1.1rem; font-weight: 800; color: var(--red);">2,180</span>
+                <span style="font-size: 0.5rem; color: var(--text-dim);">kcal total</span>
+              </div>
+              <div style="margin-top: 6px;">
+                <div class="s-row-between" style="padding: 3px 0;">
+                  <span style="font-size: 0.55rem; color: var(--text-dim);">BMR</span>
+                  <span style="font-size: 0.55rem; font-weight: 600;">1,680 kcal</span>
+                </div>
+                <div class="s-row-between" style="padding: 3px 0;">
+                  <span style="font-size: 0.55rem; color: var(--text-dim);">Exercise</span>
+                  <span style="font-size: 0.55rem; font-weight: 600; color: var(--green);">340 kcal</span>
+                </div>
+                <div class="s-row-between" style="padding: 3px 0;">
+                  <span style="font-size: 0.55rem; color: var(--text-dim);">Steps (8,432)</span>
+                  <span style="font-size: 0.55rem; font-weight: 600; color: var(--cyan);">160 kcal</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Exercise entries -->
+            <div style="font-size: 0.65rem; font-weight: 600; margin: 8px 0 6px;">Exercises</div>
+            <div class="s-card accent-left" style="border-left-color: var(--green);">
+              <div class="s-row" style="margin-bottom: 4px;">
+                <span class="s-pill" style="background: rgba(34,197,94,0.15); color: var(--green);">Running</span>
+                <span class="s-pill" style="background: rgba(249,115,22,0.15); color: var(--orange);">High</span>
+              </div>
+              <div style="font-size: 0.55rem; color: var(--text-dim);">30 min &bull; 340 kcal</div>
+              <div style="font-size: 0.5rem; color: var(--text-muted); margin-top: 2px; font-style: italic;">Great cardio session, steady pace throughout</div>
+            </div>
+            <div class="s-card accent-left" style="border-left-color: var(--blue);">
+              <div class="s-row" style="margin-bottom: 4px;">
+                <span class="s-pill" style="background: rgba(59,130,246,0.15); color: var(--blue);">Walking</span>
+                <span class="s-pill" style="background: rgba(34,197,94,0.15); color: var(--green);">Low</span>
+              </div>
+              <div style="font-size: 0.55rem; color: var(--text-dim);">Auto &bull; 160 kcal</div>
+              <div style="font-size: 0.5rem; color: var(--text-muted); margin-top: 2px; font-style: italic;">Auto-logged from 8,432 steps</div>
+            </div>
+
+            <!-- Body Metrics -->
+            <div style="font-size: 0.65rem; font-weight: 600; margin: 8px 0 6px;">Body Metrics</div>
+            <div class="s-activity-row">
+              <div class="s-activity-card">
+                <div class="s-activity-val c-purple">72.5</div>
+                <div class="s-activity-lbl">Weight (kg)</div>
+              </div>
+              <div class="s-activity-card">
+                <div class="s-activity-val c-pink">32"</div>
+                <div class="s-activity-lbl">Waist</div>
+              </div>
+              <div class="s-activity-card">
+                <div class="s-activity-val c-blue">14"</div>
+                <div class="s-activity-lbl">Biceps</div>
+              </div>
+            </div>
+
+            <div class="s-tab-bar">
+              <div class="s-tab"><div class="s-tab-icon">&#9728;</div><div class="s-tab-label">Today</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#8634;</div><div class="s-tab-label">Habits</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#9745;</div><div class="s-tab-label">Todo</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#128214;</div><div class="s-tab-label">Logs</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#9998;</div><div class="s-tab-label">Notes</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Todo Lists -->
+<section class="section" id="todo" style="border-top: 1px solid var(--border);">
+  <div class="section-inner">
+    <div class="split fade-up">
+      <div class="split-text">
+        <div class="section-label c-cyan">Todo Lists</div>
+        <div class="section-title">Health tasks that<br>never slip through</div>
+        <div class="section-desc">Attach actionable checklists to your habits. Undone items automatically carry over to the next day so nothing gets forgotten.</div>
+        <ul class="cap-list">
+          <li><span class="check">&#10003;</span> <strong>Habit-linked todos</strong> — Each todo list is tied to a habit for contextual tracking</li>
+          <li><span class="check">&#10003;</span> <strong>Carry-over</strong> — Unfinished tasks automatically reappear the next day with a badge</li>
+          <li><span class="check">&#10003;</span> <strong>Smart completion</strong> — Habit is marked complete only when all active items are done</li>
+          <li><span class="check">&#10003;</span> <strong>Progress tracking</strong> — Visual progress bar shows X of Y items completed</li>
+          <li><span class="check">&#10003;</span> <strong>Quick actions</strong> — Long-press to archive or delete items, tap to toggle</li>
+          <li><span class="check">&#10003;</span> <strong>Voice-created</strong> — Say "add buy protein powder to my todo" via Universal Voice</li>
+        </ul>
+      </div>
+      <div class="split-visual">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>100%</span></div>
+            <div class="s-header">Todo</div>
+            <div class="s-subheader">Shopping List</div>
+
+            <!-- Progress -->
+            <div class="s-card" style="padding: 10px;">
+              <div class="s-row-between" style="margin-bottom: 4px;">
+                <span style="font-size: 0.55rem; font-weight: 600;">Progress</span>
+                <span style="font-size: 0.55rem; color: var(--green);">3/5</span>
+              </div>
+              <div class="s-progress-bar">
+                <div class="s-progress-fill" style="width: 60%; background: var(--gradient-1);"></div>
+              </div>
+            </div>
+
+            <div class="s-card">
+              <div class="s-todo-item">
+                <div class="s-todo-check done">&#10003;</div>
+                <span class="s-todo-text done-text">Buy vegetables &amp; fruits</span>
+              </div>
+              <div class="s-todo-item">
+                <div class="s-todo-check done">&#10003;</div>
+                <span class="s-todo-text done-text">Pick up protein powder</span>
+              </div>
+              <div class="s-todo-item">
+                <div class="s-todo-check done">&#10003;</div>
+                <span class="s-todo-text done-text">Get multivitamins</span>
+              </div>
+              <div class="s-todo-item">
+                <div class="s-todo-check"></div>
+                <span class="s-todo-text">Buy oats and granola</span>
+                <span class="s-todo-badge">carried over</span>
+              </div>
+              <div class="s-todo-item">
+                <div class="s-todo-check"></div>
+                <span class="s-todo-text">Restock green tea</span>
+              </div>
+            </div>
+
+            <div style="font-size: 0.6rem; font-weight: 600; margin: 10px 0 6px;">More Todo Lists</div>
+            <div class="s-card" style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--blue);"></div>
+              <span style="font-size: 0.6rem; font-weight: 500;">Workout Plan</span>
+              <span style="font-size: 0.5rem; color: var(--green); margin-left: auto;">2/4</span>
+            </div>
+            <div class="s-card" style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--pink);"></div>
+              <span style="font-size: 0.6rem; font-weight: 500;">Meal Prep</span>
+              <span style="font-size: 0.5rem; color: var(--green); margin-left: auto;">5/5 &#10003;</span>
+            </div>
+
+            <div class="s-input-bar">
+              <div class="s-input">Add a new item...</div>
+              <div class="s-input-btn">+</div>
+            </div>
+
+            <div class="s-tab-bar">
+              <div class="s-tab"><div class="s-tab-icon">&#9728;</div><div class="s-tab-label">Today</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#8634;</div><div class="s-tab-label">Habits</div></div>
+              <div class="s-tab active"><div class="s-tab-icon">&#9745;</div><div class="s-tab-label">Todo</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#128214;</div><div class="s-tab-label">Logs</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#9998;</div><div class="s-tab-label">Notes</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Notes -->
+<section class="section" id="notes" style="border-top: 1px solid var(--border);">
+  <div class="section-inner">
+    <div class="split split-reverse fade-up">
+      <div class="split-text">
+        <div class="section-label c-pink">Notes</div>
+        <div class="section-title">Your personal<br>health journal</div>
+        <div class="section-desc">Capture thoughts, reflections, and plans throughout your day. Attach voice recordings and photos, search across all entries, and browse by date range.</div>
+        <ul class="cap-list">
+          <li><span class="check">&#10003;</span> <strong>Rich notes</strong> — Title, content, voice recordings, and image attachments</li>
+          <li><span class="check">&#10003;</span> <strong>Voice transcription</strong> — Record audio, auto-transcribed to text via OpenAI Whisper</li>
+          <li><span class="check">&#10003;</span> <strong>Photo attachments</strong> — Attach images to notes for visual records</li>
+          <li><span class="check">&#10003;</span> <strong>Multi-day views</strong> — Browse 7-day or 30-day windows with section headers</li>
+          <li><span class="check">&#10003;</span> <strong>Full-text search</strong> — Find any note instantly by keyword</li>
+          <li><span class="check">&#10003;</span> <strong>Calendar picker</strong> — Jump to any date with the dark-themed calendar modal</li>
+        </ul>
+      </div>
+      <div class="split-visual">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>100%</span></div>
+            <div class="s-row-between" style="margin-bottom: 8px;">
+              <div class="s-header" style="margin-bottom: 0;">Notes</div>
+              <span style="font-size: 0.6rem; color: var(--green);">+ New</span>
+            </div>
+
+            <!-- Date nav -->
+            <div class="s-row-between" style="margin-bottom: 10px;">
+              <span style="font-size: 0.65rem; color: var(--text-muted);">&#8249;</span>
+              <span style="font-size: 0.65rem; font-weight: 600;">Today</span>
+              <span style="font-size: 0.65rem; color: var(--text-muted);">&#8250;</span>
+            </div>
+
+            <!-- Period toggle -->
+            <div style="display: flex; gap: 4px; margin-bottom: 12px; background: var(--bg-card2); border-radius: 8px; padding: 3px;">
+              <div style="flex: 1; text-align: center; padding: 4px; border-radius: 6px; background: var(--green); font-size: 0.5rem; font-weight: 600; color: #000;">Day</div>
+              <div style="flex: 1; text-align: center; padding: 4px; border-radius: 6px; font-size: 0.5rem; color: var(--text-dim);">7 Days</div>
+              <div style="flex: 1; text-align: center; padding: 4px; border-radius: 6px; font-size: 0.5rem; color: var(--text-dim);">30 Days</div>
+            </div>
+
+            <div class="s-note-card">
+              <div class="s-note-title">Morning Reflection &#127908;</div>
+              <div class="s-note-preview">Slept well last night, about 7.5 hours. Feeling energized and ready for the day. Planning to hit the gym after work...</div>
+              <div class="s-note-date">8:30 AM &bull; voice note</div>
+            </div>
+            <div class="s-note-card">
+              <div class="s-note-title">Workout Plan</div>
+              <div class="s-note-preview">Upper body day: bench press 4x8, overhead press 3x10, lat pulldowns 3x12, bicep curls 3x15...</div>
+              <div class="s-note-date">12:15 PM</div>
+            </div>
+            <div class="s-note-card">
+              <div class="s-note-title">Meal Prep Ideas &#128247;</div>
+              <div class="s-note-preview">For next week: chicken breast with brown rice, dal with roti, greek yogurt bowls, overnight oats...</div>
+              <div class="s-note-date">6:45 PM &bull; has photo</div>
+            </div>
+            <div class="s-note-card">
+              <div class="s-note-title">Evening Check-in</div>
+              <div class="s-note-preview">Good day overall. Hit all macros, completed workout. Need to drink more water tomorrow...</div>
+              <div class="s-note-date">9:30 PM</div>
+            </div>
+
+            <!-- Search bar -->
+            <div class="s-input-bar" style="margin-top: 10px;">
+              <div class="s-input">&#128269; Search notes...</div>
+            </div>
+
+            <div class="s-tab-bar">
+              <div class="s-tab"><div class="s-tab-icon">&#9728;</div><div class="s-tab-label">Today</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#8634;</div><div class="s-tab-label">Habits</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#9745;</div><div class="s-tab-label">Todo</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#128214;</div><div class="s-tab-label">Logs</div></div>
+              <div class="s-tab active"><div class="s-tab-icon">&#9998;</div><div class="s-tab-label">Notes</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Reminders & Alarms -->
+<section class="section" id="reminders" style="border-top: 1px solid var(--border);">
+  <div class="section-inner">
+    <div class="split fade-up">
+      <div class="split-text">
+        <div class="section-label c-purple">Reminders & Alarms</div>
+        <div class="section-title">Never miss a<br>health reminder</div>
+        <div class="section-desc">Set time-based reminders by voice or manually. HealthPlus generates spoken audio using OpenAI TTS that automatically plays at the scheduled time — like a personal health assistant.</div>
+        <ul class="cap-list">
+          <li><span class="check">&#10003;</span> <strong>Voice-created</strong> — "Remind me at 5pm to drink water" instantly creates a reminder</li>
+          <li><span class="check">&#10003;</span> <strong>AI-generated speech</strong> — Each reminder gets a TTS audio file so it speaks to you</li>
+          <li><span class="check">&#10003;</span> <strong>Auto-play</strong> — When the time arrives, the reminder audio plays 3 times automatically</li>
+          <li><span class="check">&#10003;</span> <strong>Todo integration</strong> — Voice reminders can also create a todo item alongside the alarm</li>
+          <li><span class="check">&#10003;</span> <strong>Playback control</strong> — Tap the play button to preview any reminder's audio anytime</li>
+          <li><span class="check">&#10003;</span> <strong>Date-aware</strong> — Reminders are tied to specific dates, visible in your todo screen</li>
+        </ul>
+      </div>
+      <div class="split-visual">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>100%</span></div>
+            <div class="s-header">Reminders</div>
+            <div class="s-subheader">Today's Alarms</div>
+
+            <!-- Active reminder - highlighted -->
+            <div style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25); border-radius: 12px; padding: 14px; margin-bottom: 8px;">
+              <div class="s-row-between" style="margin-bottom: 6px;">
+                <div class="s-row" style="gap: 6px;">
+                  <span style="font-size: 1rem;">&#128276;</span>
+                  <span style="font-size: 0.7rem; font-weight: 700; color: var(--purple);">5:00 PM</span>
+                </div>
+                <span class="s-pill" style="background: rgba(34,197,94,0.15); color: var(--green);">upcoming</span>
+              </div>
+              <div style="font-size: 0.65rem; font-weight: 500; margin-bottom: 6px;">Drink 2 glasses of water</div>
+              <div class="s-row" style="gap: 6px;">
+                <div style="flex: 1; height: 28px; background: var(--bg-card2); border-radius: 6px; display: flex; align-items: center; padding: 0 8px; gap: 6px;">
+                  <span style="font-size: 0.6rem; color: var(--purple);">&#9654;</span>
+                  <div style="flex: 1; height: 3px; background: var(--border); border-radius: 2px;">
+                    <div style="width: 0%; height: 100%; background: var(--purple); border-radius: 2px;"></div>
+                  </div>
+                  <span style="font-size: 0.4rem; color: var(--text-muted);">0:03</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="s-reminder">
+              <span class="s-reminder-time">6:30 PM</span>
+              <span class="s-reminder-text">Take evening vitamins</span>
+              <div class="s-reminder-play">&#9654;</div>
+            </div>
+            <div class="s-reminder">
+              <span class="s-reminder-time">8:00 PM</span>
+              <span class="s-reminder-text">Prepare overnight oats</span>
+              <div class="s-reminder-play">&#9654;</div>
+            </div>
+            <div class="s-reminder">
+              <span class="s-reminder-time">9:30 PM</span>
+              <span class="s-reminder-text">Log today's weight</span>
+              <div class="s-reminder-play">&#9654;</div>
+            </div>
+            <div class="s-reminder">
+              <span class="s-reminder-time">10:00 PM</span>
+              <span class="s-reminder-text">Wind down, no screens</span>
+              <div class="s-reminder-play">&#9654;</div>
+            </div>
+
+            <!-- Triggered -->
+            <div style="font-size: 0.6rem; font-weight: 600; margin: 12px 0 6px; color: var(--text-dim);">Completed</div>
+            <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg-card2); border-radius: 8px; margin-bottom: 6px; opacity: 0.5; border: 1px solid var(--border);">
+              <span style="font-size: 0.6rem; font-weight: 700; color: var(--text-muted); background: var(--bg-card); padding: 2px 6px; border-radius: 4px;">8:00 AM</span>
+              <span style="font-size: 0.55rem; text-decoration: line-through; color: var(--text-muted);">Morning stretches</span>
+              <span style="font-size: 0.5rem; color: var(--green); margin-left: auto;">&#10003;</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg-card2); border-radius: 8px; opacity: 0.5; border: 1px solid var(--border);">
+              <span style="font-size: 0.6rem; font-weight: 700; color: var(--text-muted); background: var(--bg-card); padding: 2px 6px; border-radius: 4px;">12:00 PM</span>
+              <span style="font-size: 0.55rem; text-decoration: line-through; color: var(--text-muted);">Lunch break walk</span>
+              <span style="font-size: 0.5rem; color: var(--green); margin-left: auto;">&#10003;</span>
+            </div>
+
+            <div class="s-tab-bar">
+              <div class="s-tab"><div class="s-tab-icon">&#9728;</div><div class="s-tab-label">Today</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#8634;</div><div class="s-tab-label">Habits</div></div>
+              <div class="s-tab active"><div class="s-tab-icon">&#9745;</div><div class="s-tab-label">Todo</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#128214;</div><div class="s-tab-label">Logs</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#9998;</div><div class="s-tab-label">Notes</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Goals Section -->
+<section class="section" style="border-top: 1px solid var(--border);">
+  <div class="section-inner">
+    <div class="split split-reverse fade-up">
+      <div class="split-text">
+        <div class="section-label c-yellow">Goals</div>
+        <div class="section-title">Set targets,<br>track progress</div>
+        <div class="section-desc">Configure daily nutrition goals and body metric targets. See real-time progress throughout the day on your home screen.</div>
+        <ul class="cap-list">
+          <li><span class="check">&#10003;</span> <strong>Daily calories</strong> — Set target intake, see progress ring</li>
+          <li><span class="check">&#10003;</span> <strong>Macro goals</strong> — Protein, carbs, fat targets in grams</li>
+          <li><span class="check">&#10003;</span> <strong>Step goals</strong> — Daily step target with progress bar</li>
+          <li><span class="check">&#10003;</span> <strong>Body targets</strong> — Target weight, waist, biceps with unit toggles (kg/lb, in/cm)</li>
+          <li><span class="check">&#10003;</span> <strong>Real-time tracking</strong> — Home screen shows progress toward all goals</li>
+        </ul>
+      </div>
+      <div class="split-visual">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>100%</span></div>
+            <div class="s-header">Goals</div>
+
+            <div style="font-size: 0.65rem; font-weight: 600; margin-bottom: 8px;">Daily Goals</div>
+            <div class="s-card">
+              <div class="s-row-between" style="padding: 4px 0;">
+                <span style="font-size: 0.6rem;">Calories</span>
+                <span style="font-size: 0.6rem; font-weight: 700; color: var(--green);">2,000 kcal</span>
+              </div>
+              <div class="s-row-between" style="padding: 4px 0;">
+                <span style="font-size: 0.6rem;">Protein</span>
+                <span style="font-size: 0.6rem; font-weight: 700; color: var(--blue);">120 g</span>
+              </div>
+              <div class="s-row-between" style="padding: 4px 0;">
+                <span style="font-size: 0.6rem;">Carbs</span>
+                <span style="font-size: 0.6rem; font-weight: 700; color: var(--orange);">250 g</span>
+              </div>
+              <div class="s-row-between" style="padding: 4px 0;">
+                <span style="font-size: 0.6rem;">Fat</span>
+                <span style="font-size: 0.6rem; font-weight: 700; color: var(--pink);">65 g</span>
+              </div>
+              <div class="s-row-between" style="padding: 4px 0;">
+                <span style="font-size: 0.6rem;">Daily Steps</span>
+                <span style="font-size: 0.6rem; font-weight: 700; color: var(--cyan);">10,000</span>
+              </div>
+            </div>
+
+            <div style="font-size: 0.65rem; font-weight: 600; margin: 12px 0 8px;">Body Metric Targets</div>
+            <div class="s-card">
+              <div class="s-row-between" style="padding: 4px 0;">
+                <span style="font-size: 0.6rem;">Target Weight</span>
+                <span style="font-size: 0.6rem; font-weight: 700; color: var(--purple);">70 kg</span>
+              </div>
+              <div class="s-row-between" style="padding: 4px 0;">
+                <span style="font-size: 0.6rem;">Target Waist</span>
+                <span style="font-size: 0.6rem; font-weight: 700; color: var(--pink);">30 in</span>
+              </div>
+              <div class="s-row-between" style="padding: 4px 0;">
+                <span style="font-size: 0.6rem;">Target Biceps</span>
+                <span style="font-size: 0.6rem; font-weight: 700; color: var(--blue);">15 in</span>
+              </div>
+            </div>
+
+            <div class="s-tab-bar">
+              <div class="s-tab"><div class="s-tab-icon">&#9728;</div><div class="s-tab-label">Today</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#8634;</div><div class="s-tab-label">Habits</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#9745;</div><div class="s-tab-label">Todo</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#128214;</div><div class="s-tab-label">Logs</div></div>
+              <div class="s-tab"><div class="s-tab-icon">&#9998;</div><div class="s-tab-label">Notes</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Tech Stack -->
+<section class="section" style="border-top: 1px solid var(--border);">
+  <div class="section-inner fade-up" style="text-align: center;">
+    <div class="section-label c-cyan" style="text-align: center;">Built With</div>
+    <div class="section-title" style="text-align: center; margin-left: auto; margin-right: auto;">Modern tech stack</div>
+    <div class="section-desc" style="text-align: center; margin-left: auto; margin-right: auto;">Production-grade architecture designed for speed, reliability, and AI-first experiences.</div>
+
+    <div class="feature-grid" style="max-width: 900px; margin: 0 auto;">
+      <div class="feature-card" style="text-align: center;">
+        <div class="feature-icon" style="background: rgba(34,197,94,0.12); margin: 0 auto 1.25rem;">&#9889;</div>
+        <h3>FastAPI Backend</h3>
+        <p>Async Python backend with SQLAlchemy ORM, SQLite database, and 30+ REST endpoints.</p>
+      </div>
+      <div class="feature-card" style="text-align: center;">
+        <div class="feature-icon" style="background: rgba(59,130,246,0.12); margin: 0 auto 1.25rem;">&#128241;</div>
+        <h3>React Native + Expo</h3>
+        <p>Cross-platform mobile app with TypeScript, zero compilation errors, and native feel.</p>
+      </div>
+      <div class="feature-card" style="text-align: center;">
+        <div class="feature-icon" style="background: rgba(139,92,246,0.12); margin: 0 auto 1.25rem;">&#127760;</div>
+        <h3>Next.js Web App</h3>
+        <p>Full-featured web interface with Tailwind CSS, Recharts, and feature parity with mobile.</p>
+      </div>
+      <div class="feature-card" style="text-align: center;">
+        <div class="feature-icon" style="background: rgba(249,115,22,0.12); margin: 0 auto 1.25rem;">&#129302;</div>
+        <h3>GPT-4o + Whisper</h3>
+        <p>Vision analysis for food photos & watch screens, voice transcription, intent classification, and TTS.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="fade-up">
+    <h2>Start tracking<br><span class="gradient">smarter today</span></h2>
+    <p>Your AI health companion is ready. Log your first meal in seconds.</p>
+    <a href="/login" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">Open HealthPlus</a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-links">
+    <a href="#features">Features</a>
+    <a href="#food">Food</a>
+    <a href="#voice">Voice AI</a>
+    <a href="#habits">Habits</a>
+    <a href="#todo">Todo</a>
+    <a href="#notes">Notes</a>
+    <a href="#reminders">Reminders</a>
+    <a href="/login">Open App</a>
+  </div>
+  <p>&copy; 2026 HealthPlus. Built with AI.</p>
+</footer>
+
+<script>
+// Scroll animation
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Smooth nav background
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('.nav');
+  if (window.scrollY > 50) {
+    nav.style.borderBottomColor = 'rgba(39,39,42,0.8)';
+  } else {
+    nav.style.borderBottomColor = 'var(--border)';
+  }
+});
+</script>
+</body>
+</html>

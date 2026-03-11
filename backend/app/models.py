@@ -284,6 +284,20 @@ class Reminder(Base):
     reminder_date = Column(Date, nullable=False)
     audio_path = Column(Text, nullable=True)  # path to TTS audio file
     is_triggered = Column(Boolean, default=False)
+    recurrence = Column(Text, default="onetime")  # onetime, daily, weekly, biweekly, monthly
+    is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="reminders")
+    triggers = relationship("ReminderTrigger", back_populates="reminder", cascade="all, delete-orphan")
+
+
+class ReminderTrigger(Base):
+    __tablename__ = "reminder_trigger"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    reminder_id = Column(Integer, ForeignKey("reminder.id"), nullable=False)
+    trigger_date = Column(Date, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    reminder = relationship("Reminder", back_populates="triggers")

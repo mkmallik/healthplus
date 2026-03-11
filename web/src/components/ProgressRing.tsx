@@ -25,7 +25,7 @@ export default function ProgressRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#E8E8E8"
+          stroke="#27272a"
           strokeWidth={strokeWidth}
         />
         <circle
@@ -33,7 +33,7 @@ export default function ProgressRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={isOver ? "#F44336" : "#4CAF50"}
+          stroke={isOver ? "#ef4444" : "#22c55e"}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}

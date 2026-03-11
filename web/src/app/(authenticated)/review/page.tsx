@@ -116,7 +116,7 @@ export default function ReviewPage() {
               key={food.id}
               onClick={() => setSelectedIdx(idx)}
               className={`w-full flex items-center justify-between px-4 py-3 border-b border-border last:border-0 text-left transition-colors ${
-                idx === selectedIdx ? "bg-primary-light/30" : "hover:bg-gray-50"
+                idx === selectedIdx ? "bg-primary-light/30" : "hover:bg-surface-2"
               }`}
             >
               <span className="text-sm font-medium text-text truncate flex-1 mr-2">
@@ -160,7 +160,7 @@ export default function ReviewPage() {
       <div className="flex gap-3">
         <Link
           href="/log"
-          className="flex-1 rounded-lg border border-border bg-surface py-2.5 text-center text-sm font-semibold text-text hover:bg-gray-50 transition-colors"
+          className="flex-1 rounded-lg border border-border bg-surface py-2.5 text-center text-sm font-semibold text-text hover:bg-surface-2 transition-colors"
         >
           Log Another
         </Link>

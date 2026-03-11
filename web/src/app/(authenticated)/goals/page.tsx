@@ -133,7 +133,7 @@ export default function GoalsPage() {
                 type="number"
                 value={values[field.key]}
                 onChange={(e) => updateValue(field.key, e.target.value)}
-                className="flex-1 rounded-lg border border-border bg-white px-4 py-2.5 text-base text-text outline-none transition-colors focus:border-primary"
+                className="flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 text-base text-text outline-none transition-colors focus:border-primary"
                 placeholder={field.placeholder}
                 disabled={saving}
               />
@@ -159,7 +159,7 @@ export default function GoalsPage() {
                 step="0.1"
                 value={values[field.key]}
                 onChange={(e) => updateValue(field.key, e.target.value)}
-                className="flex-1 rounded-lg border border-border bg-white px-4 py-2.5 text-base text-text outline-none transition-colors focus:border-primary"
+                className="flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 text-base text-text outline-none transition-colors focus:border-primary"
                 placeholder="0"
                 disabled={saving}
               />
@@ -171,7 +171,7 @@ export default function GoalsPage() {
                     className={`px-3 py-2 text-sm font-medium transition-colors ${
                       values[field.unitKey] === u
                         ? "bg-primary text-white"
-                        : "bg-white text-text-secondary hover:bg-gray-50"
+                        : "bg-surface text-text-secondary hover:bg-surface-2"
                     }`}
                     disabled={saving}
                   >

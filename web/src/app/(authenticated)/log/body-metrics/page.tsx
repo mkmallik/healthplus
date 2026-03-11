@@ -81,7 +81,7 @@ export default function BodyMetricsPage() {
               setDescription("");
               setAudioBlob(null);
             }}
-            className="flex-1 rounded-lg border border-border bg-surface py-2.5 text-center text-sm font-semibold text-text hover:bg-gray-50 transition-colors"
+            className="flex-1 rounded-lg border border-border bg-surface py-2.5 text-center text-sm font-semibold text-text hover:bg-surface-2 transition-colors"
           >
             Log Another
           </button>

@@ -263,7 +263,7 @@ export default function NotesPage() {
                 e.stopPropagation();
                 openEditModal(note);
               }}
-              className="rounded p-1 text-text-secondary hover:bg-gray-100 transition-colors opacity-0 group-hover:opacity-100"
+              className="rounded p-1 text-text-secondary hover:bg-surface-3 transition-colors opacity-0 group-hover:opacity-100"
             >
               <Edit3 className="h-3.5 w-3.5" />
             </button>
@@ -272,7 +272,7 @@ export default function NotesPage() {
                 e.stopPropagation();
                 handleDelete(note.id);
               }}
-              className="rounded p-1 text-error hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
+              className="rounded p-1 text-error hover:bg-red-950 transition-colors opacity-0 group-hover:opacity-100"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -314,7 +314,7 @@ export default function NotesPage() {
               className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-colors ${
                 period === p.key
                   ? "bg-primary text-white"
-                  : "bg-surface text-text-secondary hover:bg-gray-50"
+                  : "bg-surface text-text-secondary hover:bg-surface-2"
               }`}
             >
               {p.label}
@@ -343,7 +343,7 @@ export default function NotesPage() {
             <button
               type="button"
               onClick={clearSearch}
-              className="rounded-full p-0.5 text-text-secondary hover:bg-gray-100 transition-colors"
+              className="rounded-full p-0.5 text-text-secondary hover:bg-surface-3 transition-colors"
             >
               <X className="h-4 w-4" />
             </button>
@@ -419,7 +419,7 @@ export default function NotesPage() {
                   setModalOpen(false);
                   setEditNote(null);
                 }}
-                className="rounded-full p-1 hover:bg-gray-100 transition-colors"
+                className="rounded-full p-1 hover:bg-surface-3 transition-colors"
               >
                 <X className="h-5 w-5 text-text-secondary" />
               </button>
@@ -430,7 +430,7 @@ export default function NotesPage() {
               value={modalTitle}
               onChange={(e) => setModalTitle(e.target.value)}
               placeholder="Title"
-              className="w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-text outline-none focus:border-primary mb-3"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text outline-none focus:border-primary mb-3"
             />
 
             <textarea
@@ -438,7 +438,7 @@ export default function NotesPage() {
               onChange={(e) => setModalContent(e.target.value)}
               placeholder="Write your note..."
               rows={6}
-              className="w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-text outline-none focus:border-primary resize-none mb-4"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text outline-none focus:border-primary resize-none mb-4"
             />
 
             <div className="flex gap-2 justify-end">
@@ -447,7 +447,7 @@ export default function NotesPage() {
                   setModalOpen(false);
                   setEditNote(null);
                 }}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-text-secondary bg-gray-100 hover:bg-gray-200 transition-colors"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-text-secondary bg-surface-3 hover:bg-surface-3 transition-colors"
               >
                 Cancel
               </button>

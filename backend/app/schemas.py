@@ -505,6 +505,14 @@ class ReminderCreateRequest(BaseModel):
     reminder_time: str  # HH:MM format
     reminder_date: Optional[str] = None
     todo_item_id: Optional[int] = None
+    recurrence: str = "onetime"
+
+
+class ReminderUpdateRequest(BaseModel):
+    text: Optional[str] = None
+    reminder_time: Optional[str] = None
+    recurrence: Optional[str] = None
+    is_active: Optional[bool] = None
 
 
 class ReminderResponse(BaseModel):
@@ -515,6 +523,9 @@ class ReminderResponse(BaseModel):
     audio_path: Optional[str] = None
     todo_item_id: Optional[int] = None
     is_triggered: bool
+    recurrence: str = "onetime"
+    is_active: bool = True
+    is_triggered_today: bool = False
     created_at: datetime
 
     class Config:

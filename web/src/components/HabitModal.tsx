@@ -70,7 +70,7 @@ export default function HabitModal({ open, onClose, onSave, editHabit }: HabitMo
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 rounded-full p-1 hover:bg-gray-100 transition-colors"
+          className="absolute top-4 right-4 rounded-full p-1 hover:bg-surface-3 transition-colors"
         >
           <X className="h-5 w-5 text-text-secondary" />
         </button>
@@ -87,7 +87,7 @@ export default function HabitModal({ open, onClose, onSave, editHabit }: HabitMo
             onChange={(e) => setName(e.target.value)}
             maxLength={50}
             placeholder="Habit name"
-            className="w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-text outline-none focus:border-primary"
+            className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-text outline-none focus:border-primary"
           />
         </div>
 
@@ -98,7 +98,7 @@ export default function HabitModal({ open, onClose, onSave, editHabit }: HabitMo
             <button
               onClick={() => setHabitType("boolean")}
               className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                habitType === "boolean" ? "bg-primary text-white" : "bg-gray-100 text-text-secondary"
+                habitType === "boolean" ? "bg-primary text-white" : "bg-surface-3 text-text-secondary"
               }`}
             >
               ✓ Checklist
@@ -106,7 +106,7 @@ export default function HabitModal({ open, onClose, onSave, editHabit }: HabitMo
             <button
               onClick={() => setHabitType("descriptive")}
               className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                habitType === "descriptive" ? "bg-primary text-white" : "bg-gray-100 text-text-secondary"
+                habitType === "descriptive" ? "bg-primary text-white" : "bg-surface-3 text-text-secondary"
               }`}
             >
               📝 Journal
@@ -126,7 +126,7 @@ export default function HabitModal({ open, onClose, onSave, editHabit }: HabitMo
                 key={ic}
                 onClick={() => setIcon(ic)}
                 className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
-                  icon === ic ? "bg-primary-light ring-2 ring-primary" : "bg-gray-100 hover:bg-gray-200"
+                  icon === ic ? "bg-primary-light ring-2 ring-primary" : "bg-surface-3 hover:bg-surface-3"
                 }`}
               >
                 <HabitIcon icon={ic} size={20} color={icon === ic ? color : "#757575"} />
@@ -161,7 +161,7 @@ export default function HabitModal({ open, onClose, onSave, editHabit }: HabitMo
                 key={f}
                 onClick={() => setFrequency(f)}
                 className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium capitalize transition-colors ${
-                  frequency === f ? "bg-primary text-white" : "bg-gray-100 text-text-secondary"
+                  frequency === f ? "bg-primary text-white" : "bg-surface-3 text-text-secondary"
                 }`}
               >
                 {f}
@@ -182,7 +182,7 @@ export default function HabitModal({ open, onClose, onSave, editHabit }: HabitMo
               max={frequency === "weekly" ? 7 : 30}
               value={frequencyTarget}
               onChange={(e) => setFrequencyTarget(Number(e.target.value) || 1)}
-              className="w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-text outline-none focus:border-primary"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-text outline-none focus:border-primary"
             />
           </div>
         )}
@@ -191,7 +191,7 @@ export default function HabitModal({ open, onClose, onSave, editHabit }: HabitMo
         <div className="flex gap-3 mt-6">
           <button
             onClick={onClose}
-            className="flex-1 rounded-lg border border-border bg-surface py-2.5 text-sm font-semibold text-text hover:bg-gray-50 transition-colors"
+            className="flex-1 rounded-lg border border-border bg-surface py-2.5 text-sm font-semibold text-text hover:bg-surface-2 transition-colors"
           >
             Cancel
           </button>

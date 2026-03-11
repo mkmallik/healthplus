@@ -866,6 +866,7 @@ async def classify_voice_input(transcription: str, habits: list, todo_habits: li
                     '- "habit_name": matched habit name if applicable, or null\n'
                     '- "reminder_time": time string in HH:MM (24h) format if category is reminder, or null\n'
                     '- "reminder_text": the reminder message if category is reminder, or null\n'
+                    '- "recurrence": one of "onetime", "daily", "weekly", "biweekly", "monthly" if category is reminder (default "onetime" if not specified), or null\n'
                     '- "todo_habit_id": integer todo habit ID if category is todo (pick the most relevant todo habit), or null\n\n'
                     "Be smart about classification. If someone says 'I did system design today - studied consistent hashing', "
                     "and there's a 'System Design' descriptive habit, classify it as habit_log. "
@@ -889,6 +890,7 @@ async def classify_voice_input(transcription: str, habits: list, todo_habits: li
     result.setdefault("habit_name", None)
     result.setdefault("reminder_time", None)
     result.setdefault("reminder_text", None)
+    result.setdefault("recurrence", "onetime")
     result.setdefault("todo_habit_id", None)
 
     return result

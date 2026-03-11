@@ -255,7 +255,7 @@ export default function LogsPage() {
               onChange={(e) => setLogText(e.target.value)}
               placeholder={`What did you do for "${habit.name}"?`}
               rows={2}
-              className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-text outline-none focus:border-primary resize-none mb-2"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary resize-none mb-2"
               autoFocus
             />
             <div className="flex gap-2 justify-end">
@@ -264,7 +264,7 @@ export default function LogsPage() {
                   setExpandedHabitId(null);
                   setLogText("");
                 }}
-                className="rounded-lg px-3 py-1.5 text-xs font-medium text-text-secondary bg-gray-100 hover:bg-gray-200 transition-colors"
+                className="rounded-lg px-3 py-1.5 text-xs font-medium text-text-secondary bg-surface-3 hover:bg-surface-3 transition-colors"
               >
                 Cancel
               </button>
@@ -368,7 +368,7 @@ export default function LogsPage() {
                   {group.unlogged.map((habit) => (
                     <span
                       key={habit.id}
-                      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs text-text-secondary bg-gray-50 border border-border"
+                      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs text-text-secondary bg-surface-2 border border-border"
                     >
                       <HabitIcon icon={habit.icon} size={12} color={habit.color} />
                       {habit.name}
@@ -421,14 +421,14 @@ export default function LogsPage() {
       </div>
 
       {/* Period Toggle */}
-      <div className="flex rounded-xl bg-gray-100 p-1 mb-5">
+      <div className="flex rounded-xl bg-surface-3 p-1 mb-5">
         {periodButtons.map((btn) => (
           <button
             key={btn.key}
             onClick={() => setPeriod(btn.key)}
             className={`flex-1 rounded-lg py-2 text-xs font-semibold transition-colors ${
               period === btn.key
-                ? "bg-white text-primary shadow-sm"
+                ? "bg-surface text-primary shadow-sm"
                 : "text-text-secondary hover:text-text"
             }`}
           >

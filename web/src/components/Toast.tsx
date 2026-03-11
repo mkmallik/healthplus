@@ -29,15 +29,15 @@ const ICONS = {
 };
 
 const BG_COLORS = {
-  success: "bg-green-50 border-primary",
-  error: "bg-red-50 border-error",
-  info: "bg-blue-50 border-blue-500",
+  success: "bg-green-950 border-primary",
+  error: "bg-red-950 border-error",
+  info: "bg-blue-950 border-blue-500",
 };
 
 const TEXT_COLORS = {
   success: "text-primary-dark",
   error: "text-error",
-  info: "text-blue-700",
+  info: "text-blue-400",
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {

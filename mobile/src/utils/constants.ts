@@ -1,4 +1,4 @@
-export const API_URL = "https://ht.copperdigital.net/api";
+export const API_URL = "https://ht.manasmallik.com/api";
 
 export const COLORS = {
   primary: "#00D4AA",

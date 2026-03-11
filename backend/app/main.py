@@ -71,6 +71,19 @@ async def lifespan(app: FastAPI):
                 conn.execute(text(f"ALTER TABLE habit_log ADD COLUMN {col_name} {col_type}"))
         conn.commit()
 
+    # Auto-migrate: add recurrence columns to reminder if missing
+    with engine.connect() as conn:
+        result = conn.execute(text("PRAGMA table_info(reminder)"))
+        reminder_cols = {row[1] for row in result}
+        new_reminder_cols = {
+            "recurrence": "TEXT DEFAULT 'onetime'",
+            "is_active": "BOOLEAN DEFAULT 1",
+        }
+        for col_name, col_type in new_reminder_cols.items():
+            if col_name not in reminder_cols:
+                conn.execute(text(f"ALTER TABLE reminder ADD COLUMN {col_name} {col_type}"))
+        conn.commit()
+
     # Ensure all tables exist (exercise, body_metric, step_entry, etc.)
     Base.metadata.create_all(bind=engine)
 

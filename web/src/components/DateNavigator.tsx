@@ -47,7 +47,7 @@ export default function DateNavigator({
     <div className="flex items-center justify-between mb-4">
       <button
         onClick={onPrev}
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-surface shadow-sm hover:bg-gray-50 transition-colors"
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-surface shadow-sm hover:bg-surface-2 transition-colors"
       >
         <ChevronLeft className="h-5 w-5 text-primary" />
       </button>
@@ -62,7 +62,7 @@ export default function DateNavigator({
           <>
             <button
               onClick={() => inputRef.current?.showPicker()}
-              className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-surface-3 transition-colors"
               title="Pick a date"
             >
               <Calendar className="h-4 w-4 text-textSecondary" />
@@ -81,7 +81,7 @@ export default function DateNavigator({
       </div>
       <button
         onClick={onNext}
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-surface shadow-sm hover:bg-gray-50 transition-colors"
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-surface shadow-sm hover:bg-surface-2 transition-colors"
       >
         <ChevronRight className="h-5 w-5 text-primary" />
       </button>

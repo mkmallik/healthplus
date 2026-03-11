@@ -200,7 +200,7 @@ export default function TodoPage() {
 
               {/* Progress Bar */}
               {summary.total > 0 && (
-                <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden mb-3">
+                <div className="h-1.5 rounded-full bg-surface-3 overflow-hidden mb-3">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{
@@ -216,7 +216,7 @@ export default function TodoPage() {
                 {summary.items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-gray-50 transition-colors group"
+                    className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-surface-2 transition-colors group"
                     onContextMenu={(e) => handleContextMenu(e, item, habit.id)}
                   >
                     {/* Custom Checkbox */}
@@ -224,7 +224,7 @@ export default function TodoPage() {
                       onClick={() => handleToggleItem(habit.id, item)}
                       className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 transition-colors"
                       style={{
-                        borderColor: item.is_done ? habit.color : "#D0D0D0",
+                        borderColor: item.is_done ? habit.color : "#3f3f46",
                         backgroundColor: item.is_done ? habit.color : "transparent",
                       }}
                     >
@@ -264,14 +264,14 @@ export default function TodoPage() {
                     <div className="hidden group-hover:flex items-center gap-1">
                       <button
                         onClick={() => handleArchiveItem(habit.id, item.id)}
-                        className="rounded p-1 text-text-secondary hover:bg-gray-200 transition-colors"
+                        className="rounded p-1 text-text-secondary hover:bg-surface-3 transition-colors"
                         title="Archive"
                       >
                         <Archive className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => handleDeleteItem(habit.id, item.id)}
-                        className="rounded p-1 text-text-secondary hover:bg-red-50 hover:text-error transition-colors"
+                        className="rounded p-1 text-text-secondary hover:bg-red-950 hover:text-error transition-colors"
                         title="Delete"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -298,7 +298,7 @@ export default function TodoPage() {
                     }
                   }}
                   placeholder="Add a new item..."
-                  className="flex-1 rounded-lg border border-border bg-white px-3 py-2 text-sm text-text outline-none focus:border-primary placeholder:text-text-secondary"
+                  className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary placeholder:text-text-secondary"
                 />
                 <button
                   onClick={() => handleAddItem(habit.id)}
@@ -324,7 +324,7 @@ export default function TodoPage() {
             onClick={() =>
               handleArchiveItem(contextMenu.habitId, contextMenu.item.id)
             }
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-text hover:bg-gray-50 transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-text hover:bg-surface-2 transition-colors"
           >
             <Archive className="h-4 w-4 text-text-secondary" />
             Archive
@@ -333,7 +333,7 @@ export default function TodoPage() {
             onClick={() =>
               handleDeleteItem(contextMenu.habitId, contextMenu.item.id)
             }
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-error hover:bg-red-50 transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-error hover:bg-red-950 transition-colors"
           >
             <Trash2 className="h-4 w-4" />
             Delete

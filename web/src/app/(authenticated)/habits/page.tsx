@@ -161,7 +161,7 @@ export default function HabitsPage() {
             {total > 0 ? Math.round(progress * 100) : 0}%
           </span>
         </div>
-        <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+        <div className="h-2 rounded-full bg-surface-3 overflow-hidden">
           <div
             className="h-full rounded-full bg-primary transition-all"
             style={{ width: `${progress * 100}%` }}
@@ -233,7 +233,7 @@ export default function HabitsPage() {
                 <div
                   className="flex h-7 w-7 items-center justify-center rounded-full border-2 transition-colors"
                   style={{
-                    borderColor: item.completed_today ? h.color : "#D0D0D0",
+                    borderColor: item.completed_today ? h.color : "#3f3f46",
                     backgroundColor: item.completed_today ? h.color : "transparent",
                   }}
                 >
@@ -249,7 +249,7 @@ export default function HabitsPage() {
               {actionHabit?.habit.id === h.id && isDescriptive && (
                 <div className="mt-1 rounded-xl bg-surface p-4 shadow-sm border border-border">
                   {item.completed_today && latestLog?.content && (
-                    <div className="mb-3 p-2 rounded-lg bg-gray-50" style={{ borderLeft: `3px solid ${h.color}` }}>
+                    <div className="mb-3 p-2 rounded-lg bg-surface-2" style={{ borderLeft: `3px solid ${h.color}` }}>
                       <p className="text-xs text-text-secondary italic">{latestLog.content}</p>
                     </div>
                   )}
@@ -258,7 +258,7 @@ export default function HabitsPage() {
                     onChange={(e) => setDescriptiveText(e.target.value)}
                     placeholder="What did you do?"
                     rows={2}
-                    className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-text outline-none focus:border-primary resize-none mb-2"
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary resize-none mb-2"
                   />
                   <div className="flex gap-2">
                     <button
@@ -272,7 +272,7 @@ export default function HabitsPage() {
                     {item.completed_today && (
                       <button
                         onClick={() => handleRemoveDescriptiveLog(item)}
-                        className="rounded-lg px-3 py-2 text-sm font-medium text-error bg-red-50 hover:bg-red-100 transition-colors"
+                        className="rounded-lg px-3 py-2 text-sm font-medium text-error bg-red-950 hover:bg-red-100 transition-colors"
                       >
                         Remove
                       </button>
@@ -282,14 +282,14 @@ export default function HabitsPage() {
                         setEditHabit(item);
                         setModalOpen(true);
                       }}
-                      className="rounded-lg p-2 text-text-secondary hover:bg-gray-100 transition-colors"
+                      className="rounded-lg p-2 text-text-secondary hover:bg-surface-3 transition-colors"
                     >
                       <Edit3 className="h-4 w-4" />
                     </button>
                     {!h.is_default && (
                       <button
                         onClick={() => handleDelete(h.id)}
-                        className="rounded-lg p-2 text-error hover:bg-red-50 transition-colors"
+                        className="rounded-lg p-2 text-error hover:bg-red-950 transition-colors"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

@@ -35,6 +35,7 @@ const METHOD_CARDS = [
   { key: "steps", icon: "footsteps" as const, label: "Steps", color: COLORS.steps, screen: "StepLog" },
   { key: "metrics", icon: "body" as const, label: "Body Metrics", color: COLORS.weight, screen: "BodyMetric" },
   { key: "habits", icon: "checkmark-done" as const, label: "Habits", color: COLORS.streak, screen: "Habits" },
+  { key: "reminder", icon: "alarm" as const, label: "Reminder", color: "#FF7043", screen: "CreateReminder" },
 ];
 
 export default function AddFoodScreen() {

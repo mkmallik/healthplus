@@ -27,6 +27,7 @@ import HabitScreen from "./src/screens/HabitScreen";
 import DescriptiveHabitLogScreen from "./src/screens/DescriptiveHabitLogScreen";
 import TodoScreen from "./src/screens/TodoScreen";
 import UniversalVoiceLogScreen from "./src/screens/UniversalVoiceLogScreen";
+import ReminderCreateScreen from "./src/screens/ReminderCreateScreen";
 import SettingsScreen from "./src/screens/SettingsScreen";
 import NotesScreen from "./src/screens/NotesScreen";
 import NoteEditorScreen from "./src/screens/NoteEditorScreen";
@@ -171,6 +172,7 @@ function AppNavigator() {
           <Stack.Screen name="DescriptiveHabitLog" component={DescriptiveHabitLogScreen} options={{ title: "Log Habit" }} />
           <Stack.Screen name="TodoList" component={TodoScreen} options={{ title: "Todo List" }} />
           <Stack.Screen name="UniversalVoiceLog" component={UniversalVoiceLogScreen} options={{ title: "Voice Log" }} />
+          <Stack.Screen name="CreateReminder" component={ReminderCreateScreen} options={{ title: "Set Reminder" }} />
           <Stack.Screen name="NoteEditor" component={NoteEditorScreen} options={{ title: "Note" }} />
         </>
       ) : (

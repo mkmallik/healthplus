@@ -19,7 +19,7 @@ export default function ActivityCard({ icon: Icon, value, label, color, progress
       <p className="text-lg font-bold text-text">{value}</p>
       {subtitle && <p className="text-xs text-text-secondary">{subtitle}</p>}
       {progress !== undefined && (
-        <div className="mt-1.5 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+        <div className="mt-1.5 h-1.5 rounded-full bg-surface-3 overflow-hidden">
           <div
             className="h-full rounded-full transition-all"
             style={{ width: `${Math.min(progress * 100, 100)}%`, backgroundColor: color }}

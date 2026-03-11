@@ -25,7 +25,7 @@ export default function MacroBar({
           {unit}
         </span>
       </div>
-      <div className="h-2.5 w-full rounded-full bg-gray-100 overflow-hidden">
+      <div className="h-2.5 w-full rounded-full bg-surface-3 overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-500 ease-out"
           style={{

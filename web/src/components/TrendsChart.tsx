@@ -41,10 +41,10 @@ export default function TrendsChart({ data, metric, period, color }: TrendsChart
     return (
       <ResponsiveContainer width="100%" height={200}>
         <LineChart data={filtered}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
-          <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={interval} />
-          <YAxis tick={{ fontSize: 10 }} domain={["auto", "auto"]} />
-          <Tooltip />
+          <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+          <XAxis dataKey="label" tick={{ fontSize: 10, fill: "#a1a1aa" }} interval={interval} />
+          <YAxis tick={{ fontSize: 10, fill: "#a1a1aa" }} domain={["auto", "auto"]} />
+          <Tooltip contentStyle={{ background: "#1a1a1a", border: "1px solid #27272a", borderRadius: 8, color: "#f4f4f5" }} />
           <Line
             type="monotone"
             dataKey="value"
@@ -60,10 +60,10 @@ export default function TrendsChart({ data, metric, period, color }: TrendsChart
   return (
     <ResponsiveContainer width="100%" height={200}>
       <BarChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
-        <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={interval} />
-        <YAxis tick={{ fontSize: 10 }} />
-        <Tooltip />
+        <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+        <XAxis dataKey="label" tick={{ fontSize: 10, fill: "#a1a1aa" }} interval={interval} />
+        <YAxis tick={{ fontSize: 10, fill: "#a1a1aa" }} />
+        <Tooltip contentStyle={{ background: "#1a1a1a", border: "1px solid #27272a", borderRadius: 8, color: "#f4f4f5" }} />
         <Bar dataKey="value" fill={color} radius={[2, 2, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>

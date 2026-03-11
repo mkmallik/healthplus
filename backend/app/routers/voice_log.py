@@ -103,7 +103,8 @@ async def process_voice_log(
             reminder_time = classification.get("reminder_time")
             reminder_text = classification.get("reminder_text") or content
             todo_habit_id = classification.get("todo_habit_id")
-            return await _handle_reminder(reminder_text, reminder_time, target_date, todo_habit_id, user, db)
+            recurrence = classification.get("recurrence", "onetime")
+            return await _handle_reminder(reminder_text, reminder_time, target_date, todo_habit_id, recurrence, user, db)
         else:
             # Default to note
             return await _handle_note(content, transcription, target_date, user, db)
@@ -351,7 +352,7 @@ async def _handle_todo(content: str, todo_habit_id: Optional[int],
 
 
 async def _handle_reminder(text: str, reminder_time: Optional[str], target_date: date,
-                          todo_habit_id: Optional[int], user: User, db: Session) -> VoiceLogResponse:
+                          todo_habit_id: Optional[int], recurrence: str, user: User, db: Session) -> VoiceLogResponse:
     """Handle creating a reminder with TTS audio."""
     if not reminder_time:
         return VoiceLogResponse(category="reminder", message="Could not determine reminder time.", data=None)
@@ -379,6 +380,10 @@ async def _handle_reminder(text: str, reminder_time: Optional[str], target_date:
             db.flush()
             todo_item_id = todo_item.id
 
+    valid_recurrences = {"onetime", "daily", "weekly", "biweekly", "monthly"}
+    if recurrence not in valid_recurrences:
+        recurrence = "onetime"
+
     reminder = Reminder(
         user_id=user.id,
         todo_item_id=todo_item_id,
@@ -387,6 +392,8 @@ async def _handle_reminder(text: str, reminder_time: Optional[str], target_date:
         reminder_date=target_date,
         audio_path=audio_filename,
         is_triggered=False,
+        recurrence=recurrence,
+        is_active=True,
     )
     db.add(reminder)
     db.commit()
