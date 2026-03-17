@@ -206,7 +206,28 @@ def _food_to_response(food: Food) -> FoodResponse:
     }
     if food.analysis:
         try:
-            data["analysis"] = json.loads(food.analysis)
+            raw = json.loads(food.analysis)
+            if isinstance(raw, dict):
+                # Normalize healthy_items / unhealthy_items to list of dicts
+                for key in ("healthy_items", "unhealthy_items"):
+                    items = raw.get(key)
+                    if isinstance(items, list):
+                        normalized = []
+                        for item in items:
+                            if isinstance(item, dict):
+                                normalized.append(item)
+                            elif isinstance(item, str):
+                                normalized.append({"item": item, "reason": ""})
+                        raw[key] = normalized
+                # Normalize recommendations to list of strings
+                rec = raw.get("recommendations")
+                if isinstance(rec, str):
+                    raw["recommendations"] = [rec] if rec else []
+                # Normalize glycemic_index_estimate to string
+                gi = raw.get("glycemic_index_estimate")
+                if gi is not None and not isinstance(gi, str):
+                    raw["glycemic_index_estimate"] = str(gi)
+            data["analysis"] = raw
         except (json.JSONDecodeError, TypeError):
             pass
     return FoodResponse(**data)
